@@ -11,6 +11,7 @@
         const LONG = 10;
         $naturales;
         
+        //Empezamos por el 1 por no ser 0 natural
         for($i=1;$i<=LONG;$i++){
         
         	$naturales[]=$i;
@@ -19,7 +20,8 @@
         $sumatorio=0;
         $posiciones_pares=0;
         
-        for($j=0;$j<=count($naturales);$j+=2){
+        //Entendemos que se habla de POSICIONES pares, no números pares
+        for($j=0;$j<=count($naturales)-1;$j+=2){
         
         	
         	$sumatorio += $naturales[$j];

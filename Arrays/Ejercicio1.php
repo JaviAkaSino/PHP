@@ -9,7 +9,7 @@
 	<h1>Numeros pares</h1>
     <?php
         $array;
-        define("NUMERO", 20);
+        define("NUMERO", 10);
 
         for($i=0;$i<NUMERO;$i++){
 
