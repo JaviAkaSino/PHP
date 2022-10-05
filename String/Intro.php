@@ -40,6 +40,10 @@
 			
 			
 			echo md5($texto1); //Encriptador
+
+			//Substring
+
+			echo "<p>".substr("Hola", 0, 2)."</p>";
 			
 		?>
 	</body>
