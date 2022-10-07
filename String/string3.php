@@ -32,7 +32,7 @@
 		
 		<form method="post" action="string3.php">
 		
-			<p><label for="primera">Frase: </label>
+			<p><label for="entrada">Frase: </label>
 			<input type="text" id="entrada" name="entrada" value="<?php if (isset($_POST["entrada"])) echo $_POST["entrada"];?>"/>
 			
 			<?php 
