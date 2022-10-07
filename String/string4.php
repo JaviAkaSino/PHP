@@ -1,12 +1,12 @@
-
-
 <?php
 	const VALORES = array("M" => 1000, "D" =>500, "C"=>100,"L"=>50,"X"=>10,"V"=>5,"I"=>1);
 	
 	function letras_bien($texto){
 		$bien = true;
-		for ($i=0;$i<strlen($texto);$i++){
-			if(!isset(VALORES[$texto[$i]]){
+		for ($i=0; $i<strlen($texto); $i++){
+
+			if(!isset(VALORES[$texto[$i]])){
+
 				$bien=false;
 				break;
 			}		
@@ -18,7 +18,7 @@
 	function orden_decreciente($texto){
 	
 		$bien = true;
-		for ($i=0;$i<strlen($texto)-1;$i++){
+		for ($i=0; $i<strlen($texto)-1; $i++){
 			if(VALORES[$texto[$i]] < VALORES[$texto[$i+1]]){
 				$bien=false;
 				break;
@@ -40,26 +40,30 @@
 		$limite["I"]=4;
 		$bien = true;
 		
-		for ($i=0;$i<strlen($texto);$i++){
+		for ($i=0; $i<strlen($texto); $i++){
 			
 			$limite[$texto[$i]]--;
 			
 			if($limite[$texto[$i]]==-1){
 		
 			$bien = false;
-			return $bien;
+			break;
 			}
 		}	
+
+		return $bien;
 	}
 	
 	
 	
 	function es_romano($texto){
-		return letras_bien($texto) && orden_decreciente($texto) && repite_bien($texto)
+
+		return letras_bien($texto) && orden_decreciente($texto) && repite_bien($texto);
 	}
 	
-	if(isset($_POST["botonSubmit"])){
-		$error = ($_POST["entrada"]="" || !es_romano(trim(strtoupper($_POST["entrada"])));
+	if(isset($_POST["boton_submit"])){
+
+		$error = $_POST["entrada"] == "" || !es_romano(trim(strtoupper($_POST["entrada"])));
 	}
 ?>
 
@@ -67,7 +71,7 @@
 
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 	<head>
 		<title>Ejercicio 4 Strings</title>
 		<meta charset="UTF-8"/>
@@ -84,57 +88,52 @@
 		
 		<p>Dime un número romano y lo convertiré a cifras árabes</p>
 		
-		<form method="post" action="Ejercicio4.php">
+		<form method="post" action="string4.php">
 		
 			<p><label for="entrada">Número: </label>
 			
 			<input type="text" id="entrada" name="entrada" value="<?php if (isset($_POST["entrada"])) echo $_POST["entrada"];?>"/>
 			
 			<?php 
-			if (isset($_POST["botonSubmit"]) && $error) {
+			if (isset($_POST["boton_submit"]) && $error) {
 				
 				if($_POST["entrada"]=="")
 					echo "<span class='error'> * Campo vacío</span>";
 				else
 					echo "<span class='error'> * Número romano no escrito correctamente</span>";
-			}?></p>
+					
+			}
+			?>
+			</p>
 			
-			
-			
-			
-			<button type="submit" name="botonSubmit">Convertir</button>
+			<button type="submit" name="boton_submit">Convertir</button>
 		
 		</form>
 		</div>
 		
 	<?php
 	
-		if(isset($_POST["botonSubmit"])&& !$error){
-		$entrada = $_POST["entrada"];
-		
-	?>
+		if(isset($_POST["boton_submit"]) && !$error){
 	
-		<div id="div_res">
-			<h2>Romanos a árabes - Resultado</h2>
+			echo "<div id='div_res'>";
+			echo "<h2>Romanos a árabes - Resultado</h2>";
 		
-			<?php echo "<p>".$_POST["entrada"];
+			$entrada = trim(strtoupper($_POST["entrada"]));
+			$arabes = 0;
+
+			for ($i=0;$i<strlen($entrada);$i++){
+
+				$arabes += VALORES[$entrada[$i]];
+			}
 			
+			echo "<p>El número ".$entrada ." se escribe en cifras árabes ".$arabes;
+	?>
+
+
 			
-			
-			
-			?>
-			
-			</p>
-			
-			
+			</p>		
 		</div>
-	
-	<?php
-	
-	}
-	
-	?>
-		
-		
+
+		<?php } ?>
 	</body>
 </html>

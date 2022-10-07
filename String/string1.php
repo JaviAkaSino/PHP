@@ -32,7 +32,7 @@
 		
 		<p>Dime dos palabras y te dire si riman o no.</p>
 		
-		<form method="post" action="Ejercicio1.php">
+		<form method="post" action="string1.php">
 		
 			<p><label for="primera">Primera palabra: </label>
 			<input type="text" id="primera" name="primera" value="<?php if (isset($_POST["primera"])) echo $_POST["primera"];?>"/>

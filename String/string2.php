@@ -30,7 +30,7 @@
 		
 		<p>Dime una palabra o un número y te diré si es un palíndromo o un número capicúa.</p>
 		
-		<form method="post" action="Ejercicio2.php">
+		<form method="post" action="string2.php">
 		
 			<p><label for="primera">Palabra o número: </label>
 			<input type="text" id="entrada" name="entrada" value="<?php if (isset($_POST["entrada"])) echo $_POST["entrada"];?>"/>

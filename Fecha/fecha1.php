@@ -53,7 +53,7 @@
 				<p>
 				<label for="fecha1">Introduzca una fecha: (DD/MM/YYYY)</label>
 				<input type="text" name="fecha1" id="fecha1" 
-				value="<?php if(isset($_POST["fecha1"])) echo $_POST["fecha1"]?>"/>
+				value="<?php if(isset($_POST["fecha1"])) echo $_POST["fecha1"];?>"/>
 
 				<?php 
 					if (isset($_POST["boton_submit"]) && $error_fecha1) {
