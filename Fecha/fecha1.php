@@ -12,9 +12,9 @@
 			$anio = substr($texto, 6, 2);
 			
 			$error_separadores = $sep1 != "/" || $sep2 != "/";
-			$error_formato = !checkdate($mes,$dia,$anio);
+			$error_numeros = !is_numeric($dia) || !is_numeric($mes) || !is_numeric($anio);
 			
-			$error_fecha = $error_separadores || $error_formato;
+			$error_fecha = $error_separadores || $error_numeros || !checkdate($mes,$dia,$anio);
 			
 		}
 		return $error_fecha;
@@ -37,10 +37,11 @@
         <meta charset="UTF-8"/>
         <title>Fechas 1 - Javier Parodi Piñero</title>
         <style>
-        	div{border:2px solid black;}
-        	#entrada{background:lightblue;}
-        	#resultado{background:lightgreen;}
+        	div{border:2px solid black}
+        	#entrada{background:lightblue}
+        	#resultado{background:lightgreen}
         	h1{text-align:center}
+			.error{font-weight:bold}
         </style>
     </head>
 
