@@ -54,7 +54,7 @@
             echo "<p><strong>Error en la subida: </strong>".$_FILES["foto"]["error"]."</p>";
             echo "<p><strong>Ruta del archivo temporal: </strong>".$_FILES["foto"]["tmp_name"]."</p>";
             echo "<p><strong>Tamaño del archivo: </strong>".$_FILES["foto"]["size"]." B</p>";
-            echo "<p><strong>Tipo  del archivo: </strong>".$_FILES["foto"]["type"]."</p>";
+            echo "<p><strong>Tipo del archivo: </strong>".$_FILES["foto"]["type"]."</p>";
 
             $array_nombre = explode(".", $_FILES["foto"]["name"]);
             $extension = "";
