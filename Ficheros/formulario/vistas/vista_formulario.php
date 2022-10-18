@@ -44,8 +44,17 @@
 			value="<?php if (isset($_POST["dni"])) echo $_POST["dni"];?>"/>
 			<?php
 			if (isset($_POST["dni"])&&$error_dni)
-			
-				echo "<span class='error'>* Campo vacio *</span>";
+
+				if($_POST["dni"]==""){
+					echo "<span class='error'>* Campo vacio *</span>";
+				} else if (!formato_dni($_POST["dni"])){
+					
+					echo "<span class='error'>* Debes rellenar el DNI con 8 dígitos seguidos de una letra *</span>";
+				}else {
+					echo "<span class='error'>* DNI no válido *</span>";
+					
+				}
+				
 			?>
 			<br/>
 			<label>Sexo:</label>
@@ -54,15 +63,15 @@
 				echo "<span class='error'>* Debe seleccionar una opción *</span>";
 			?>
 			<br/>
-			<input type="radio" name="sexo" value="hombre" id="hombre"
+			<input type="radio" name="sexo" value="Hombre" id="hombre"
 			<?php
-			if(isset($_POST["sexo"])&&$_POST["sexo"]=="hombre") echo "checked";
+			if(isset($_POST["sexo"])&&$_POST["sexo"]=="Hombre") echo "checked";
 			?>/>
 			<label for="hombre">Hombre</label>
 			<br/>
-			<input type="radio" name="sexo" value="mujer" id="mujer"
+			<input type="radio" name="sexo" value="Mujer" id="mujer"
 			<?php
-			if(isset($_POST["sexo"])&&$_POST["sexo"]=="mujer") echo "checked";
+			if(isset($_POST["sexo"])&&$_POST["sexo"]=="Mujer") echo "checked";
 			?>/>
 			<label for="mujer">Mujer</label>
 			<br/>
@@ -70,19 +79,7 @@
 
 			<label for="foto">Incluir mi foto (Archivo tipo imagen Max. 500KB): </label> 
 			<input type="file" id="foto" name="foto" accept="image/*"/>
-			<?php 
-			if (isset($_POST["boton_submit"]) && $error_archivo){
-
-				if ($_FILES["foto"]["name"]!=""){
-
-					if ($_FILES["foto"]["error"])
-						echo "<span class='error'>Error en la subida del archivo</span>";
-					elseif(!getimagesize($_FILES["foto"]["tmp_name"]))
-						echo "<span class='error'>Error, no has seleccionado un archivo imagen</span>";
-					else
-						echo "<span class='error'>Error, el tamaño de la imagen seleccionada supera los 500kb</span>";
-				}
-			} ?>
+			
 			<br/>
 			<br/>
 			

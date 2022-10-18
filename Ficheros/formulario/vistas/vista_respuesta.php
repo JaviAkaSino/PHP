@@ -8,8 +8,6 @@
 			<h1>DATOS ENVIADOS</h1>
 			
 			<?php
-			//$_POST u $POST son variables que se crean si se hace un submit. 
-			//Es un array asociativo, es decir, en vez de índice, el nombre
 				echo "<p><strong>Nombre: </strong>".$_POST["nombre"]."</p>";
 				echo "<p><strong>Usuario: </strong>".$_POST["usuario"]."</p>";
 				echo "<p><strong>Contraseña: </strong>".$_POST["contra"]."</p>";
@@ -17,16 +15,14 @@
 				//Si se marca el sexo, que salga
 				if(isset($_POST["sexo"]))
 					echo "<p><strong>Sexo: </strong>".$_POST["sexo"]."</p>";
-				//Si hay una sola sentencia, se pueden omitir las llaves
-				//Si se marca la casilla, sí; sino, no
 				if(isset($_POST["sub"]))
 					echo "<p><strong>Suscripción: </strong>Aceptada</p>";
 				else
 					echo "<p><strong>Suscripción: </strong>No aceptada</p>";
 			
-        if(isset($_POST["boton_submit"]) && !$error_archivo){
+        if(isset($_POST["boton_submit"])){
 
-			if (!$_FILES["foto"]){
+			if (!$_FILES["foto"]|| $_FILES["foto"]["name"]==""){
 
 				echo "<p><strong>Foto: </strong>Foto no seleccionada.</p>";
 			} else {
@@ -39,30 +35,30 @@
 				echo "<p><strong>Tamaño archivo: </strong>".$_FILES["foto"]["size"]." bytes</p>";
             
 
-            $array_nombre = explode(".", $_FILES["foto"]["name"]);
-            $extension = "";
-            if(count($array_nombre)>1)
-                $extension = ".".strtolower(end($array_nombre));
-            
-            $nombre_unico = "img_".md5(uniqid(uniqid(),true));
+				$array_nombre = explode(".", $_FILES["foto"]["name"]);
+				$extension = "";
+				if(count($array_nombre)>1)
+					$extension = ".".strtolower(end($array_nombre));
+				
+				$nombre_unico = "img_".md5(uniqid(uniqid(),true));
 
-            $nombre_nuevo_archivo = $nombre_unico.$extension;
+				$nombre_nuevo_archivo = $nombre_unico.$extension;
 
-            //Poniendo un arroba avisas que quieres controlar un warning
-            @$var=move_uploaded_file($_FILES["foto"]["tmp_name"], "images/".$nombre_nuevo_archivo);
+				//Poniendo un arroba avisas que quieres controlar un warning
+				@$var=move_uploaded_file($_FILES["foto"]["tmp_name"], "images/".$nombre_nuevo_archivo);
 
-            if(!$var){
+				if(!$var){
 
-                echo "<p>La imagen no ha podido ser movida por falta de permisos</p>";
+					echo "<p>La imagen no ha podido ser movida por falta de permisos</p>";
 
-            } else {
+				} else {
 
-                echo "<h3>La imagen ha sido subida con éxito</h3>";
-                echo "<img height='200' src='images/".$nombre_nuevo_archivo."'/>";
+					echo "<h3>La imagen ha sido subida con éxito</h3>";
+					echo "<img height='200' src='images/".$nombre_nuevo_archivo."'/>";
 
-                //sudo chmod 777 -R '/opt/lampp/htdocs/PHP
+					//sudo chmod 777 -R '/opt/lampp/htdocs/PHP
 
-            }
+				}
 			}
 
             
