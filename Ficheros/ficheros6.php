@@ -102,13 +102,16 @@ todos los años disponibles del país seleccionado.-->
                         echo "<td></td>";
                 }
                 echo "</tr>";
+                break; //Deja de leer líneas
             }
         }
 
         echo "</table>";
+
+        fclose($fd);
     }
 
-    fclose($fd);
+
 
     ?>
 

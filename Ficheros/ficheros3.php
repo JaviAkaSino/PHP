@@ -62,7 +62,7 @@ if (isset($_POST["boton_submit"])) {
         @$fd = fopen("tablas/tabla_" . $_POST["num1"] . ".txt", "r");
 
         if (!$fd)
-            die("<p>No se ha podido leer el fichero 'tabla_" . $_POST["num"] . ".txt'</p>");
+            die("<p>No se ha podido leer el fichero 'tabla_" . $_POST["num1"] . ".txt'</p>");
 
         echo "<h2>" . $_POST["num1"] . " X " . $_POST["num2"] . ": </h2>";
 

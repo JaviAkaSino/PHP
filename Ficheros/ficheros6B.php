@@ -1,6 +1,3 @@
-<!--Modificar el ejercicio anterior realizando una web con un formulario que contenga un select con las iniciales de un país y muestre el PIB per cápita de
-todos los años disponibles del país seleccionado.-->
-
 <!DOCTYPE html>
 <html lang="en">
 
