@@ -38,16 +38,15 @@ if (isset($_POST["boton_submit"])) {
         <p>
             <label for="cantidad">Cantidad de cuadernos a comprar: </label>
             <input type="text" name="cantidad" id="cantidad" value="<?php if (isset($_POST["cantidad"])) echo $_POST["cantidad"]; ?>">
-            <?php 
-            
-                if (isset($_POST["boton_submit"]) && $error_form){
-                
-                    if($_POST["cantidad"]=="")
-                        echo "<span class='error'>* Campo vacío *</span>";
-                    else    
-                        echo "<span class='error'>* Introduce un número entero *</span>";
+            <?php
 
-                }
+            if (isset($_POST["boton_submit"]) && $error_form) {
+
+                if ($_POST["cantidad"] == "")
+                    echo "<span class='error'>* Campo vacío *</span>";
+                else
+                    echo "<span class='error'>* Introduce un número entero *</span>";
+            }
             ?>
         </p>
         <p>
@@ -56,18 +55,17 @@ if (isset($_POST["boton_submit"])) {
     </form>
 
     <?php
-        if (isset($_POST["boton_submit"]) && !$error_form){
+    if (isset($_POST["boton_submit"]) && !$error_form) {
 
-            echo "<h3>Precio total:</h3>";
+        echo "<h3>Precio total:</h3>";
 
-            if ($_POST["cantidad"]<10)
-                echo $_POST["cantidad"]*2 . " €";
-            elseif($_POST["cantidad"]>30)
-                echo $_POST["cantidad"] . " €";
-            else
-            echo $_POST["cantidad"]*1.5 . " €";
-
-        }
+        if ($_POST["cantidad"] < 10)
+            echo $_POST["cantidad"] * 2 . " €";
+        elseif ($_POST["cantidad"] > 30)
+            echo $_POST["cantidad"] . " €";
+        else
+            echo $_POST["cantidad"] * 1.5 . " €";
+    }
     ?>
 
 </body>

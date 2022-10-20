@@ -34,21 +34,21 @@ if (isset($_POST["boton_submit"])) {
             ?>
         </p>
         <p>
-            <input type="radio" name="divisa" value="pes" id="pes" <?php if (isset($_POST["divisa"]) && $_POST["divisa"]=="pes") echo "checked"; ?>>
+            <input type="radio" name="divisa" value="pes" id="pes" <?php if (isset($_POST["divisa"]) && $_POST["divisa"] == "pes") echo "checked"; ?>>
             <label for="pes"> Pesetas</label>
         </p>
         <p>
-            <input type="radio" name="divisa" value="dol" id="dol" <?php if (isset($_POST["divisa"]) && $_POST["divisa"]=="dol") echo "checked"; ?>>
+            <input type="radio" name="divisa" value="dol" id="dol" <?php if (isset($_POST["divisa"]) && $_POST["divisa"] == "dol") echo "checked"; ?>>
             <label for="dol"> Dólares</label>
         </p>
         <?php
-            if (isset($_POST["boton_submit"]) && $error_divisa) 
-                echo "<p>Debe elegir una divisa a la cual pasar los €</p>"
+        if (isset($_POST["boton_submit"]) && $error_divisa)
+            echo "<p>Debe elegir una divisa a la cual pasar los €</p>"
         ?>
         <p>
             <button type="submit" name="boton_submit">Calcular</button>
         </p>
-        
+
     </form>
 
     <?php
@@ -56,10 +56,10 @@ if (isset($_POST["boton_submit"])) {
 
         echo "<h3>Conversión:</h3>";
 
-        if ($_POST["divisa"]=="pes")
+        if ($_POST["divisa"] == "pes")
             echo $_POST["euros"] . " € son " . $_POST["euros"] * 166.39 . " pesetas";
         else
-        echo $_POST["euros"] . " € son " . $_POST["euros"] * 0.98 . " $";
+            echo $_POST["euros"] . " € son " . $_POST["euros"] * 0.98 . " $";
     }
     ?>
 

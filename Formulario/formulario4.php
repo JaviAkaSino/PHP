@@ -59,13 +59,13 @@ if (isset($_POST["boton_submit"])) {
 
         echo "<h2>Resultados: </h2>";
 
-        echo "<p><strong>Valor 1: </strong>".$_POST["num1"]."</p>";
-        echo "<p><strong>Valor 2: </strong>".$_POST["num2"]."</p>";
-        echo "<p><strong>Suma: </strong>".$_POST["num1"]+$_POST["num2"]."</p>";
-        echo "<p><strong>Resta: </strong>".$_POST["num1"]-$_POST["num2"]."</p>";
-        echo "<p><strong>Producto: </strong>".$_POST["num1"]*$_POST["num2"]."</p>";
-        echo "<p><strong>Cociente: </strong>".$_POST["num1"]/$_POST["num2"]."</p>";
-        echo "<p><strong>Módulo: </strong>".$_POST["num1"]%$_POST["num2"]."</p>";
+        echo "<p><strong>Valor 1: </strong>" . $_POST["num1"] . "</p>";
+        echo "<p><strong>Valor 2: </strong>" . $_POST["num2"] . "</p>";
+        echo "<p><strong>Suma: </strong>" . $_POST["num1"] + $_POST["num2"] . "</p>";
+        echo "<p><strong>Resta: </strong>" . $_POST["num1"] - $_POST["num2"] . "</p>";
+        echo "<p><strong>Producto: </strong>" . $_POST["num1"] * $_POST["num2"] . "</p>";
+        echo "<p><strong>Cociente: </strong>" . $_POST["num1"] / $_POST["num2"] . "</p>";
+        echo "<p><strong>Módulo: </strong>" . $_POST["num1"] % $_POST["num2"] . "</p>";
     }
     ?>
 </body>
