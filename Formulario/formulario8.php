@@ -8,7 +8,7 @@ if (isset($_POST["boton_submit"])) {
 
 if (isset($_POST["boton_reset"])) 
     $_POST = array();
-
+    header()
 ?>
 
 <!DOCTYPE html>
