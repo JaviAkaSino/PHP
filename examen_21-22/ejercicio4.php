@@ -109,155 +109,79 @@ if (isset($_POST["boton_submit"])) {
         <h2>Horario de los Profesores</h2>
         <p>
         <form action="ejercicio4.php" method="post" enctype="multipart/form-data">
-            <label for='profesor'>Horario del Profesor: </label>
+            <label for='profesor'>Selecciona el Profesor: </label>
             <select id='profesor' name='profesor'>
                 <?php
                 while ($linea = fgets($file)) {
                     $fila_datos = texto_array("\t", $linea);
-                    $profesor = $fila_datos[0];
                     if (isset($_POST["profesor"]) && $_POST["profesor"] == $fila_datos[0]) {
-                        echo "<option selected value='" . $profesor . "'>" . $profesor . "</option>";
-                    } else
-                        echo "<option value='" . $profesor . "'>" . $profesor . "</option>";
+                        echo "<option selected value='" . $fila_datos[0] . "'>" . $fila_datos[0] . "</option>";
+                        $profesor = $fila_datos[0];
+                    } else {
+                        echo "<option value='" . $fila_datos[0] . "'>" . $fila_datos[0] . "</option>";
+                    }
+
+                    for ($i = 1; $i < count($fila_datos); $i += 3) {
+                        if (isset($horario[$fila_datos[0]][$fila_datos[$i]][$fila_datos[$i + 1]]))
+                            $horario[$fila_datos[0]][$fila_datos[$i]][$fila_datos[$i + 1]] .= " / " . $fila_datos[$i + 2];
+                        else
+                            $horario[$fila_datos[0]][$fila_datos[$i]][$fila_datos[$i + 1]] = $fila_datos[$i + 2];
+                    }
                 }
                 ?>
             </select>
             <button type="submit" name="boton_horario">Ver Horario</button>
         </form>
         </p>
-        <p>Horario del profesor:
-            <?php echo $_POST["profesor"]; ?>
-        </p>
-        <p>
-        <table>
-            <tr>
-                <th></th>
-                <th>Lunes</th>
-                <th>Martes</th>
-                <th>Miércoles</th>
-                <th>Jueves</th>
-                <th>Viernes</th>
-            </tr>
-            <tr>
-                <th>8:15 - 9:15</th>
-                <td>
+        <?php
+        if (isset($_POST["boton_horario"])) {
+            $horas[1] = "8:15 - 9:15";
+            $horas[] = "9:15 - 10:15";
+            $horas[] = "10:15 - 11:15";
+            $horas[] = "11:15 - 11:45";
+            $horas[] = "11:45 - 12:45";
+            $horas[] = "12:45 - 13:45";
+            $horas[] = "13:45 - 14:45";
 
-                </td>
-                <td>
+            echo "<h3>Horario del profesor: " . $profesor . "</h3>";
+            echo "<table class='tabla'>";
+            echo "<tr>
+                        <th></th>
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miércoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                    </tr>";
 
-                </td>
-                <td>
+            for ($hora = 1; $hora <= 7; $hora++) {
 
-                </td>
-                <td>
+                echo "<tr>";
+                echo "<th>" . $horas[$hora] . "</th>";
+                if ($hora == 4) {
+                    echo "<td colspan='5'>RECREO</td>";
+                } else {
 
-                </td>
-                <td>
+                    for ($dia = 1; $dia <= 5; $dia++) {
+                        if (isset($horario[$profesor][$dia][$hora])) {
+                            echo "<td>" . $horario[$profesor][$dia][$hora] . "</td>";
+                        } else {
+                            echo "<td></td>";
+                        }
+                    }
+                }
+                echo "</tr>";
+            }
 
-                </td>
-            </tr>
-            <tr>
-                <th>9:15 - 10:15</th>
-                <td>
+            echo "</table>";
+        }
 
-                </td>
-                <td>
 
-                </td>
-                <td>
+        ?>
 
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-            </tr>
-            <tr>
-                <th>10:15 - 11:15</th>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-            </tr>
-            <tr>
-                <th>11:15 - 11:45</th>
-                <td colspan="5">
-                    RECREO
-                </td>
-
-            </tr>
-            <tr>
-                <th>11:45 - 12:45</th>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-            </tr>
-            <tr>
-                <th>12:45 - 13:45</th>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-            </tr>
-            <tr>
-                <th>13:45 - 14:45</th>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-                <td>
-
-                </td>
-            </tr>
-        </table>
-        </p>
     <?php
 
-
+        fclose($file);
     }
     ?>
 
