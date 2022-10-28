@@ -111,11 +111,7 @@ function descifrado_cesar($texto, $desp)
 
 
     <?php
-    $linea_deco;
-
-
-
-
+    setlocale(LC_ALL,"es_ES");
     @$deco = fopen("decodificado.txt", "w");
 
     if ($deco) {
@@ -130,13 +126,26 @@ function descifrado_cesar($texto, $desp)
                 if (contiene(descifrado_cesar($linea, $desplazamiento), "FELIX")) { //Si el deco contiene FELIX
 
                     $is_felix = true;
-                    echo "<p>" . $desplazamiento . "</p>";
-                    echo "<p>" . descifrado_cesar($linea, $desplazamiento) . "</p>";
+
+                    fclose($codi); //Cierra y abre para empezar de 0
+                    @$codi = fopen("codificado.txt", "r");
+
+                    while ($linea = fgets($codi)){ //Las escribe decodificadas
+
+                        fwrite($deco, descifrado_cesar($linea, $desplazamiento));
+                    }
+
+                    fclose($codi);
+                    break;
                 }
             }
-            fclose($codi);
+            
             $desplazamiento++;
         }
+
+        //fwrite($deco, "\nEste fichero fue decodificado el ".date("l")." día ".date("d")." de ".date("M")." de ".date("Y")." a las ".date("h:m")." horas.");
+        fwrite($deco,  "\n".strftime("Este fichero fue decodificado el %A, día %d de %B de %Y a las %H:%M horas."));
+
 
         fclose($deco);
     } else {
