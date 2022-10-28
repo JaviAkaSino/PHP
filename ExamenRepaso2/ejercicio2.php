@@ -56,7 +56,7 @@ function cifrado_cesar($texto, $desp)
                 $resultado .= $abecedario[$pos + $desp];
             } else { //Si se sale, da la vuelta
 
-                $resultado .= $abecedario[$pos + $desp - strlen($abecedario) - 1];
+                $resultado .= $abecedario[$pos + $desp - strlen($abecedario)];
             }
         } else {
             $resultado .= $texto[$i];

@@ -53,7 +53,7 @@ function cifrado_cesar($texto, $desp)
                 $resultado .= $abecedario[$pos + $desp];
             } else { //Si se sale, da la vuelta
 
-                $resultado .= $abecedario[$pos + $desp - strlen($abecedario) - 1];
+                $resultado .= $abecedario[$pos + $desp - strlen($abecedario)];
             }
         } else {
             $resultado .= $texto[$i];
@@ -77,8 +77,7 @@ function descifrado_cesar($texto, $desp)
 
                 $resultado .= $abecedario[$pos - $desp];
             } else { //Si se sale, da la vuelta
-                echo strlen($abecedario) + ($pos - $desp) + 1;
-                $resultado .= $abecedario[strlen($abecedario) + ($pos - $desp) + 1];
+                $resultado .= $abecedario[strlen($abecedario) + ($pos - $desp)];
             }
         } else {
 
@@ -138,11 +137,13 @@ function descifrado_cesar($texto, $desp)
             fclose($codi);
             $desplazamiento++;
         }
+
+        fclose($deco);
     } else {
         echo "<h2>No se encuentra el archivo <em>decodificado.txt</em></h2>";
     }
 
-    fclose($deco);
+    
 
 
 
