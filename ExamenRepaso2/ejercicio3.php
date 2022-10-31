@@ -111,50 +111,47 @@ function descifrado_cesar($texto, $desp)
 
 
     <?php
-    setlocale(LC_ALL,"es_ES");
+    //setlocale(LC_ALL,"es_ES");
     @$deco = fopen("decodificado.txt", "w");
+    if (!$deco)
+        die("<p>No se ha podido abrir el fichero <em>decodificado.txt</em></p>");
 
-    if ($deco) {
+    @$codi = fopen("codificado.txt", "r");
+    if (!$codi)
+        die("<p>No se ha podido abrir el fichero <em>codificado.txt</em></p>");
 
-        $is_felix = false;
-        $desplazamiento = 0;
 
-        while (!$is_felix) { //Hasta que salga FELIX
-            @$codi = fopen("codificado.txt", "r");
-            while ($linea = fgets($codi)) { //Recorremos las tres lineas
+    $is_felix = false;
+    $desplazamiento = 0;
 
-                if (contiene(descifrado_cesar($linea, $desplazamiento), "FELIX")) { //Si el deco contiene FELIX
+    while (!$is_felix) { //Hasta que salga FELIX
 
-                    $is_felix = true;
+        while ($linea = fgets($codi)) { //Recorremos las tres lineas
 
-                    fclose($codi); //Cierra y abre para empezar de 0
-                    @$codi = fopen("codificado.txt", "r");
+            if (contiene(descifrado_cesar($linea, $desplazamiento), "FELIX")) { //Si el deco contiene FELIX
 
-                    while ($linea = fgets($codi)){ //Las escribe decodificadas
+                $is_felix = true;
 
-                        fwrite($deco, descifrado_cesar($linea, $desplazamiento));
-                    }
+                fseek($codi, 0); //Empezar de 0
 
-                    fclose($codi);
-                    break;
+                while ($linea = fgets($codi)) { //Las escribe decodificadas
+
+                    fputs($deco, descifrado_cesar($linea, $desplazamiento));
                 }
+
+                break;
             }
-            
-            $desplazamiento++;
         }
 
-        //fwrite($deco, "\nEste fichero fue decodificado el ".date("l")." día ".date("d")." de ".date("M")." de ".date("Y")." a las ".date("h:m")." horas.");
-        fwrite($deco,  "\n".strftime("Este fichero fue decodificado el %A, día %d de %B de %Y a las %H:%M horas."));
-
-
-        fclose($deco);
-    } else {
-        echo "<h2>No se encuentra el archivo <em>decodificado.txt</em></h2>";
+        fseek($codi, 0);
+        $desplazamiento++;
     }
 
-    
+    fwrite($deco, "\nEste fichero fue decodificado el " . date("l") . " día " . date("d") . " de " . date("M") . " de " . date("Y") . " a las " . date("h:m") . " horas.");
+    //fwrite($deco,  "\n".strftime("Este fichero fue decodificado el %A, día %d de %B de %Y a las %H:%M horas."));
 
-
+    fclose($deco);
+    fclose($codi);
 
     ?>
 
