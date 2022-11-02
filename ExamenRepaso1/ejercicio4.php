@@ -68,7 +68,7 @@ if (isset($_POST["boton_submit"])) {
         <form action="ejercicio4.php" method="post" enctype="multipart/form-data">
             <p>
                 <label for="archivo">Introduzca la ruta del fichero .txt inferior a 1 MB</label>
-                <input type="file" name="archivo" id="archivo">
+                <input type="file" name="archivo" id="archivo" accept=".txt">
 
                 <?php
                 if (isset($_POST["boton_submit"]) && $error_form) {
