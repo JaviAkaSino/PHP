@@ -64,7 +64,7 @@ if (isset($_POST["boton_submit"])) {
 
 		<?php
 		if (isset($_POST["boton_submit"]) && !$error_form) {
-			@$var = move_uploaded_file($_FILES["archivo"]["tmp_name"], "Horario/horarios22.txt");
+			@$var = move_uploaded_file($_FILES["archivo"]["tmp_name"], "Horario/horarios2.txt");
 
 			if (!$var)
 				echo "<span class='error'>EL archivo no ha podido ser guardado por falta de permisos</span>";
