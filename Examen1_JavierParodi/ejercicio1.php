@@ -10,21 +10,48 @@ function matriz_polybios()
 	$matriz[] = $primera_fila;
 	$primera_letra = ord("A");
 
-	
+
 	for ($i = 1; $i <= 5; $i++) {
 		$linea = [];
 		$linea[] = $i;
-		for ($j = 0; $j < 5; $j++){
+		for ($j = 0; $j < 5; $j++) {
 
-			$linea[] = chr( $primera_letra + $j);
-			
+			if ($primera_letra + $j == ord("J"))
+				$primera_letra++;
+			$linea[] = chr($primera_letra + $j);
 		}
 
-			$primera_letra+=5;
+		$primera_letra += 5;
 
 		$matriz[] = $linea;
 	}
 	return $matriz;
+}
+
+
+function matrix_to_file($matriz, $archivo, $separador)
+{
+
+
+	@$file = fopen($archivo, "w");
+
+	if (!$file) {
+
+		echo "<span class='error'>Falta de permisos</span>";
+	} else {
+
+		for ($i = 0; $i < count($matriz); $i++) {
+
+			for ($j = 0; $j < count($matriz[0]); $j++) {
+
+				fputs($file, $matriz[$i][$j] . $separador);
+			}
+
+			fputs($file, PHP_EOL);
+		}
+
+		fclose($file);
+	}
 }
 
 ?>
@@ -42,34 +69,17 @@ function matriz_polybios()
 	<h1>Ejercicio 1. Generador de "claves_polybios.txt"</h1>
 
 	<form action="ejercicio1.php" method="post" enctype="multipart/form-data">
-		<button type="submit" name="boton_submit">Generar</button>
+		<p><button type="submit" name="boton_submit">Generar</button></p>
 	</form>
 
 	<?php
 
-	$matriz = matriz_polybios();
-	print_r($matriz);
+	if (isset($_POST["boton_submit"])) {
 
-	$file = fopen("claves_polybios.txt", "w");
+		matrix_to_file(matriz_polybios(), "claves_polybios.txt", ";");
 
-	if (!$file){
-
-		echo "<span class='error'>Falta de permisos</span>";
-	}
-		
-
-	else{
-
-		for ($i = 0; $i < count($matriz); $i++) {
-	
-			for ($j = 0; $j < count($matriz[0]); $j++){
-	
-				fputs("claves_polybios.txt", $matriz[$i][$j].";");
-				
-			}
-
-		}
-
+		echo "<textarea>" . file_get_contents("claves_polybios.txt") . "</textarea>";
+		echo "<p>Fichero generado con éxito</p>";
 	}
 
 
