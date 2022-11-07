@@ -7,7 +7,7 @@ function contar_letras($texto)
 {
     $longitud = 0;
 
-    while ($texto[$longitud] != null) {
+    while (isset($texto[$longitud])) {
         
         $longitud++;
     }
