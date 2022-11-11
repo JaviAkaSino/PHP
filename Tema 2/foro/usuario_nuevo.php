@@ -1,4 +1,56 @@
 <?php
+require "src/bd_config.php";
+
+function salto_POST($action, $name)
+{
+
+    echo "<!DOCTYPE html>
+    <html lang='es''>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Da igual</title>
+    </head>";
+
+    echo "<body onload='document.getElementById(\"form_salto\").submit();'>";
+    echo "<form id = 'form_salto' action='" . $action . "' method'post'>";
+    echo "<input type='hidden' name ='" . $name . "' value='ok'/>";
+    echo "</form>";
+    echo "</body></html>";
+}
+
+function repetido($conexion, $tabla, $columna, $valor)
+{
+
+    $consulta = "select " . $columna . " from " . $tabla . " where " . $columna . " = '" . $valor . "'";
+
+    try {
+
+        $resultado = mysqli_query($conexion, $consulta);
+
+        $respuesta = mysqli_num_rows($resultado) > 0;
+
+        mysqli_free_result($resultado);
+    } catch (Exception $e) {
+        $respuesta = "Imposible conectar. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+    }
+
+    return $respuesta;
+}
+
+function pag_error($title, $encabezado, $mensaje)
+{
+
+    return "<!DOCTYPE html>
+    <html lang='es''>
+    <head>
+        <meta charset='UTF-8'>
+        <title>" . $title . "</title>
+    </head>
+    <body>
+        <h1>" . $encabezado . "</h1><p>" . $mensaje . "</p>
+    </body>
+    </html>";
+}
 
 if (isset($_POST["boton_volver"])) {
     header("Location:index.php");
@@ -8,18 +60,64 @@ if (isset($_POST["boton_volver"])) {
 if (isset($_POST["boton_continuar"])) {
 
     $error_nombre = $_POST["nombre"] == "";
-    $error_usuario = $_POST["usuario"] == ""/* || repetido()*/;
+    $error_usuario = $_POST["usuario"] == "";
     $error_clave = $_POST["clave"] == "";
     $error_email = $_POST["email"] == "" || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
     $error_form = $error_nombre || $error_usuario || $error_clave || $error_email;
     if (!$error_form) {
-        echo "Inserto en BD y salto a index";
+
+        try {
+
+            $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+
+            die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", "Imposible conectar. Error Nº " .
+                mysqli_connect_errno() . ": " . mysqli_connect_error()));
+        }
+
+        $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"]);
+
+        if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
+
+            mysqli_close($conexion);
+            die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
+        } else {
+
+            $error_email = repetido($conexion, "usuarios", "email", $_POST["email"]);
+
+            if (is_string($error_email)) {
+
+                mysqli_close($conexion);
+                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_email));
+            } else {
+
+                if (!$error_usuario && !$error_email) {
+
+                    $consulta = "insert into usuarios (nombre, usuario, clave, email) values ('" . $_POST["nombre"] .
+                        "', '" . $_POST["usuario"] . "', '" . md5($_POST["clave"]) . "', '" . $_POST["email"] . "')";
+
+                    try {
+
+                        mysqli_query($conexion, $consulta);
+                        mysqli_close($conexion);
+                        salto_POST("index.php", "usuario_nuevo");
+                        exit();
+                    } catch (Exception $e) {
+
+                        $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+                        mysqli_close($conexion);
+                        die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $consulta . $mensaje));
+                    }
+                }
+            }
+        }
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -36,8 +134,13 @@ if (isset($_POST["boton_continuar"])) {
         </p>
         <p>
             <label for="usuario">Usuario:</label>
-            <input type="text" name="usuario" id="usuario" maxlength="20" value="">
-            <?php if (isset($_POST["usuario"]) && $error_usuario) echo "<span class='error'> Campo vacío </span>" ?>
+            <input type="text" name="usuario" id="usuario" maxlength="20" value="<?php if (isset($_POST["usuario"])) echo $_POST["usuario"] ?>">
+            <?php if (isset($_POST["usuario"]) && $error_usuario) {
+                if ($_POST["usuario"] == "")
+                    echo "<span class='error'> Campo vacío </span>";
+                else
+                    echo "<span class='error'> Usuario ya existente </span>";
+            }  ?>
         </p>
         <p>
             <label for="clave">Contraseña:</label>
@@ -51,8 +154,10 @@ if (isset($_POST["boton_continuar"])) {
             <?php if (isset($_POST["email"]) && $error_email) {
                 if ($_POST["email"] == "")
                     echo "<span class='error'> Campo vacío </span>";
-                else
+                elseif (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
                     echo "<span class='error'> E-mail no válido</span>";
+                else
+                    echo "<span class='error'>E-mail ya en uso</span>";
             }
 
 
