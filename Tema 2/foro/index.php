@@ -113,7 +113,7 @@ if (isset($_POST["boton_confirma_borrar"])) {
 <body>
     <h1 class="texto-centrado">Listado de usuarios</h1>
     <?php
-    if (!isset($conexion)) { //Si ya de ha borrado ya está creada la conexión
+    if (!isset($conexion)) { //Si ya se ha borrado ya está creada la conexión
 
         try {
 
@@ -200,50 +200,112 @@ if (isset($_POST["boton_confirma_borrar"])) {
             echo "<button type='submit' name='boton_volver'>Volver</button>";
             echo "<button type='submit' name='boton_confirma_borrar' value='" . $_POST["boton_borrar"] . "'>Continuar</button>";
             echo "</form>";
-
         } elseif (isset($_POST["boton_editar"])) {
 
             echo "<h2 class='centrar'>Editar Usuario " . $_POST["boton_editar"] . "</h2>";
             $consulta = "SELECT * FROM usuarios WHERE id_usuario = '" . $_POST["boton_editar"] . "'";
             $resultado = mysqli_query($conexion, $consulta);
-
             $tupla = mysqli_fetch_assoc($resultado);
+            $id = $tupla["id_usuario"];
+            $nombre = $tupla["nombre"];
+            $usuario = $tupla["usuario"];
+            $email = $tupla["email"];
+            $clave = $tupla["clave"];
 
-            ?>
+            //ERRORES
+            if (isset($_POST["boton_continuar"])) {
+                $error_nombre = $_POST["nombre"] == "";
+                $error_usuario = $_POST["usuario"] == "";
+                $error_email = $_POST["email"] == "" || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
 
-<form action="index.php" method="post" class="centrar">
-        <p>
-            <label for="nombre">Nombre:</label>
-            <input type="text" name="nombre" id="nombre" maxlength="30" value="<?php echo $tupla["nombre"] ?>"/>
-        </p>
-        <p>
-            <label for="usuario">Usuario:</label>
-            <input type="text" name="usuario" id="usuario" maxlength="20" value="<?php echo $tupla["usuario"] ?>"/>
-        </p>
-        <p>
-            <label for="clave">Contraseña:</label>
-            <input type="password" name="clave" id="clave" maxlength="20" placeholder="Nueva contraseña">
-        </p>
+                $error_form = $error_nombre || $error_usuario || $error_email;
 
-        <p>
-            <label for="email">E-mail:</label>
-            <input type="text" name="email" id="email" maxlength="50" value="<?php echo $tupla["email"]; if (isset($_POST["email"])) echo $_POST["email"] ?>">
-            
-                <?php if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
-                    echo "<span class='error'> E-mail no válido</span>";
-                    //Si el email ha cambiado y es igual que otro
-                elseif ($tupla["email"] != $_POST["email"] && repetido($conexion, "usuarios", "email", $_POST["email"]))
-                    echo "<span class='error'>E-mail ya en uso</span>";
+                if (!$error_form) {
+
+                    try {
+
+                        $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+                        mysqli_set_charset($conexion, "utf8");
+                    } catch (Exception $e) {
+
+                        die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", "Imposible conectar. Error Nº " .
+                            mysqli_connect_errno() . ": " . mysqli_connect_error()));
+                    }
+
+                    $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"]);
+
+                    if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
+
+                        mysqli_close($conexion);
+                        die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
+                    } else {
+
+                        $error_email = repetido($conexion, "usuarios", "email", $_POST["email"]);
+
+                        if (is_string($error_email)) {
+
+                            mysqli_close($conexion);
+                            die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_email));
+                        } else {
+
+                            if (!$error_usuario && !$error_email) {
+
+                                $consulta = "UPDATE usuarios 
+                                            SET 
+                                                nombre ='" . $_POST["nombre"] . "', usuario = '" .
+                                    $_POST["usuario"] . "', clave ='" . md5($_POST["clave"]) . "', email = '" . $_POST["email"] . "'" .
+                                    "WHERE id_usuario = '" . $id . "'";
+
+                                try {
+
+                                    mysqli_query($conexion, $consulta);
+                                    mysqli_close($conexion);
+                                    salto_POST("index.php", "usuario_nuevo");
+                                    exit();
+                                } catch (Exception $e) {
+
+                                    $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+                                    mysqli_close($conexion);
+                                    die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $mensaje));
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            ?>
-        </p>
-        <p>
-            <button type="submit" name="boton_volver">Volver</button>
-            <button type="submit" name="boton_continuar">Continuar</button>
-        </p>
-    </form>
 
-            <?php
+    ?>
+
+            <form action="index.php" method="post" class="centrar">
+                <p>
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" name="nombre" id="nombre" maxlength="30" value="<?php if (!isset($_POST["nombre"])) echo $nombre;
+                                                                                        else echo $_POST["nombre"]; ?>" />
+                </p>
+                <p>
+                    <label for="usuario">Usuario:</label>
+                    <input type="text" name="usuario" id="usuario" maxlength="20" value="<?php echo $usuario ?>" />
+                </p>
+                <p>
+                    <label for="clave">Contraseña:</label>
+                    <input type="password" name="clave" id="clave" maxlength="20" placeholder="Nueva contraseña">
+                </p>
+
+                <p>
+                    <label for="email">E-mail:</label>
+                    <input type="text" name="email" id="email" maxlength="50" value="<?php echo $tupla["email"];
+                                                                                        if (isset($_POST["boton_continuar"]) && $_POST["email"] != $email) echo $_POST["email"] ?>">
+
+                </p>
+                <p>
+                    <button type="submit" name="boton_volver">Volver</button>
+                    <button type="submit" name="boton_continuar">Continuar</button>
+                </p>
+            </form>
+
+    <?php
+
+
 
         } else {
 
