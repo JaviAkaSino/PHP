@@ -1,5 +1,6 @@
 <?php
 require "src/bd_config.php";
+require "src/funciones.php";
 
 function salto_POST($action, $name)
 {
@@ -18,55 +19,23 @@ function salto_POST($action, $name)
     echo "</body></html>";
 }
 
-function repetido($conexion, $tabla, $columna, $valor)
-{
-
-    $consulta = "select " . $columna . " from " . $tabla . " where " . $columna . " = '" . $valor . "'";
-
-    try {
-
-        $resultado = mysqli_query($conexion, $consulta);
-
-        $respuesta = mysqli_num_rows($resultado) > 0;
-
-        mysqli_free_result($resultado);
-    } catch (Exception $e) {
-        $respuesta = "Imposible conectar. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-    }
-
-    return $respuesta;
-}
-
-function pag_error($title, $encabezado, $mensaje)
-{
-
-    return "<!DOCTYPE html>
-    <html lang='es''>
-    <head>
-        <meta charset='UTF-8'>
-        <title>" . $title . "</title>
-    </head>
-    <body>
-        <h1>" . $encabezado . "</h1><p>" . $mensaje . "</p>
-    </body>
-    </html>";
-}
 
 if (isset($_POST["boton_volver"])) {
     header("Location:index.php");
     exit();
 }
 
-if (isset($_POST["boton_continuar"])) {
+if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores normales
 
     $error_nombre = $_POST["nombre"] == "";
     $error_usuario = $_POST["usuario"] == "";
     $error_clave = $_POST["clave"] == "";
     $error_email = $_POST["email"] == "" || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
     $error_form = $error_nombre || $error_usuario || $error_clave || $error_email;
-    if (!$error_form) {
 
-        try {
+    if (!$error_usuario || !$error_email) { //Si ya están rellenos, mirar si están repetidos
+
+        try { //Try catch de la conexión
 
             $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
             mysqli_set_charset($conexion, "utf8");
@@ -76,13 +45,18 @@ if (isset($_POST["boton_continuar"])) {
                 mysqli_connect_errno() . ": " . mysqli_connect_error()));
         }
 
-        $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"]);
+        if (!$error_usuario) { //SI USUARIO YA ESTÁ RELLENO
 
-        if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
+            $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"]); //Error si repetido
 
-            mysqli_close($conexion);
-            die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
-        } else {
+            if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
+
+                mysqli_close($conexion);
+                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
+            }
+        }
+
+        if (!$error_email) { // IGUAL PARA EMAIL
 
             $error_email = repetido($conexion, "usuarios", "email", $_POST["email"]);
 
@@ -90,30 +64,34 @@ if (isset($_POST["boton_continuar"])) {
 
                 mysqli_close($conexion);
                 die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_email));
-            } else {
+            }
+        }
 
-                if (!$error_usuario && !$error_email) {
 
-                    $consulta = "insert into usuarios (nombre, usuario, clave, email) values ('" . $_POST["nombre"] .
-                        "', '" . $_POST["usuario"] . "', '" . md5($_POST["clave"]) . "', '" . $_POST["email"] . "')";
+        $error_form = $error_nombre || $error_usuario || $error_clave || $error_email;
 
-                    try {
+        if (!$error_form) {
 
-                        mysqli_query($conexion, $consulta);
-                        mysqli_close($conexion);
-                        salto_POST("index.php", "usuario_nuevo");
-                        exit();
-                    } catch (Exception $e) {
+            $consulta = "insert into usuarios (nombre, usuario, clave, email) values ('" . $_POST["nombre"] .
+                "', '" . $_POST["usuario"] . "', '" . md5($_POST["clave"]) . "', '" . $_POST["email"] . "')";
 
-                        $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-                        mysqli_close($conexion);
-                        die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $mensaje));
-                    }
-                }
+            try {
+
+                mysqli_query($conexion, $consulta);
+                mysqli_close($conexion);
+                salto_POST("index.php", "usuario_nuevo");
+                exit();
+            } catch (Exception $e) {
+
+                $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+                mysqli_close($conexion);
+                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $mensaje));
             }
         }
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
