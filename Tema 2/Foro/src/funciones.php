@@ -5,7 +5,7 @@ function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $v
 {
 
     if (isset($columna_clave))
-        $consulta = "select " . $columna . " from " . $tabla . " where " . $columna . " = '" . $valor . "' AND " . $columna_clave . " <> " . $valor_clave . "'";
+        $consulta = "select " . $columna . " from " . $tabla . " where " . $columna . " = '" . $valor . "' AND " . $columna_clave . " <> '" . $valor_clave . "'";
     else
         $consulta = "select " . $columna . " from " . $tabla . " where " . $columna . " = '" . $valor . "'";
     try {
@@ -16,7 +16,7 @@ function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $v
 
         mysqli_free_result($resultado);
     } catch (Exception $e) {
-        $respuesta = "Imposible conectar. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+        $respuesta = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
     }
 
     return $respuesta;

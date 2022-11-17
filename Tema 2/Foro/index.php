@@ -23,13 +23,13 @@ if (isset($_POST["boton_confirma_editar"])) { //Al pulsar botón, revisamos erro
             mysqli_set_charset($conexion, "utf8");
         } catch (Exception $e) {
 
-            die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", "Imposible conectar. Error Nº " .
+            die(pag_error("Prácitca 1º CRUD", "Editar usuario", "Imposible conectar. Error Nº " .
                 mysqli_connect_errno() . ": " . mysqli_connect_error()));
         }
 
         if (!$error_usuario) { //SI USUARIO YA ESTÁ RELLENO
 
-            $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"], "id_uduario", $_POST["boton_confirma_editar"]); //Error si repetido
+            $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"], "id_usuario", $_POST["boton_confirma_editar"]); //Error si repetido
 
             if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
 
@@ -166,10 +166,6 @@ if (isset($_POST["boton_confirma_borrar"])) {
             die("<p>Imposible conectar. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error() . "</p>");
         }
     }
-
-
-
-
 
     try {
 

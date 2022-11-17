@@ -17,7 +17,7 @@ if (isset($_POST["boton_editar"])) {
             $email = $tupla["email"];
         } else {
 
-            $error_consistencia = "EL usuario seleccionado ya no se encuentra en la base de datos";
+            $error_consistencia = "El usuario seleccionado ya no se encuentra en la base de datos";
         }
     } catch (Exception $e) {
         $mensaje = "<p>Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion) . "</p>";
@@ -34,7 +34,14 @@ if (isset($_POST["boton_editar"])) {
 
 echo "<h2 class='centrar'>Editar Usuario " . $id_usuario . "</h2>";
 
-if ($error_consistencia) {
+if (isset($error_consistencia)) {
+   
+    echo "<div class='centrar'>";
+    echo "<p>".$error_consistencia."</p>";
+    echo "<form action='index.php' method='post'>";
+    echo "<button type='submit'>Volver</button>";
+    echo "</form>";
+
 } else {
 
 ?>
