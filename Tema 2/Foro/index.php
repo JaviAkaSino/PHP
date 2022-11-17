@@ -101,7 +101,7 @@ if (isset($_POST["boton_confirma_borrar"])) {
 
         $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
         mysqli_close($conexion);
-        die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $consulta . $mensaje));
+        die(pag_error("Prácitca 1º CRUD", "Borrar Usuario", $mensaje));
     }
 }
 ?>
