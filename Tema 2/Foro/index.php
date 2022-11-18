@@ -167,59 +167,50 @@ if (isset($_POST["boton_confirma_borrar"])) {
         }
     }
 
-    try {
-
-        require "vistas/tabla_principal.php";
-
-        //***************** MENSAJE DE ACCIÓN *****************
-
-        if (isset($mensaje_accion))
-            echo "<p class='centrar'>" . $mensaje_accion . "</p>";
+    //****************  TABLA PRINCIPAL  *******************
+    require "vistas/tabla_principal.php";
 
 
+    //***************** MENSAJE DE ACCIÓN *****************
 
-        //***************** BOTÓN LISTAR *****************
-
-        if (isset($_POST["boton_listar"])) {
-
-            require "vistas/listar.php";
+    if (isset($mensaje_accion))
+        echo "<p class='centrar'>" . $mensaje_accion . "</p>";
 
 
+    //***************** BOTÓN LISTAR *****************
 
-            //***************** BORRAR USUARIO *****************
+    if (isset($_POST["boton_listar"])) {
 
-        } elseif (isset($_POST["boton_borrar"])) {
-
-            require "vistas/borrar.php";
-
-
-            //***************** EDITAR USUARIO *****************
+        require "vistas/listar.php";
 
 
-        } elseif (
-            isset($_POST["boton_editar"]) || //Muestra el formulario cuando se pulse editar
-            (isset($_POST["boton_confirma_editar"]) && $error_form) //Ó si hay errores en editar
-        ) {
+        //***************** BORRAR USUARIO *****************
 
-            require "vistas/editar.php";
-            
-        } else {
+    } elseif (isset($_POST["boton_borrar"])) {
 
-            require "vistas/boton_nuevo.php";
-        }
+        require "vistas/borrar.php";
 
 
-        mysqli_close($conexion);
-    } catch (Exception $e) {
+        //***************** EDITAR USUARIO *****************
 
-        $mensaje = "Imposible conectar; Error nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-        mysqli_close($conexion); //Cierra conexión
-        die($mensaje);
+    } elseif (
+        isset($_POST["boton_editar"]) || //Muestra el formulario cuando se pulse editar
+        (isset($_POST["boton_confirma_editar"]) && $error_form) //Ó si hay errores en editar
+    ) {
+
+        require "vistas/editar.php";
+
+
+        //***************** NUEVO USUARIO *****************
+
+    } else {
+
+        require "vistas/boton_nuevo.php";
     }
 
+    mysqli_close($conexion);
+
     ?>
-
-
 
 </body>
 

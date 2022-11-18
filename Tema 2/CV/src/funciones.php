@@ -35,16 +35,19 @@ function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $v
     return $respuesta;
 }
 
-function LetraNIF ($dni) {
-    $valor= (int) ($dni / 23);
-    $valor *= 23;
-    $valor= $dni - $valor;
-    $letras= "TRWAGMYFPDXBNJZSQVHLCKEO";
-    $letraNif= substr ($letras, $valor, 1);
-    return $letraNif;
-   }
+function letra_dni($dni)
+{
 
-function dni_valido ($dni){
+    return substr("TRWAGMYFPDXBNJZSQVHLCKEO", $dni % 23, 1);
+}
 
-    return LetraNIF(substr($dni, 0, 8)) == substr($dni, 8, 1);
+function dni_formato($dni)
+{
+    // Longitud de 9, primero 8 son números, y el 9º es letra
+    return strlen($dni) == 9 && is_numeric(substr($dni, 0, 8)) && strtoupper(substr($dni, 8, 1)) >= 'A' && strtoupper(substr($dni, 8, 1)) <= 'Z';
+}
+
+function dni_valido($dni)
+{
+    return dni_formato($dni) && letra_dni(substr($dni, 0, 8)) == strtoupper(substr($dni, 8, 1));
 }
