@@ -22,6 +22,8 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
         $resultado = mysqli_query($conexion, $consulta);
         $mensaje_accion = "Usuario borrado con éxito";
+        if ($_POST["nombre_foto"] != "no_imagen.jpg")
+            unlink("Img/" . $_POST["nombre_foto"]);
     } catch (Exception $e) {
 
         $mensaje = "No ha sido posible borrar el usuario. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
@@ -35,45 +37,109 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
 if (isset($_POST["boton_confirmar_editar"])) {
 
-    //ERRORES NORMALES ---
+    $error_nombre = $_POST["nombre"] == "";
+    $error_usuario = $_POST["usuario"] == "";
+    $error_dni = $_POST["dni"] == "" || !dni_formato($_POST["dni"]) || !dni_valido($_POST["dni"]);
+    $error_sexo = !isset($_POST["sexo"]);
+    $error_foto = $_FILES["foto"]["name"] != "" &&
+        ($_FILES["foto"]["error"] || !getimagesize($_FILES["foto"]["tmp_name"]) || $_FILES["foto"]["size"] > 500000);
 
-    try {
+    $error_form = $error_nombre || $error_usuario || $error_dni || $error_sexo || $error_foto;
 
-        $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
-        mysqli_set_charset($conexion, "utf8");
-    } catch (Exception $e) {
+    //Si usuario y dni no dan los errores "normales" accedemos a la bd para ver si están repetidos
+    if (!$error_usuario || !$error_dni) {
 
-        pag_error("Práctica 8", "Editar usuario", "Imposible conectar. Error Nº " .
-            mysqli_connect_errno() . ": " . mysqli_connect_error());
-    }
+        try {
+            $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+            die(pag_error("Práctica 8", "Editar usuario", "Imposible conectar. Error Nº " .
+                mysqli_connect_errno() . ": " . mysqli_connect_error()));
+        }
 
-    //REPETIDOS ----
+        if (!$error_usuario) {
 
-    if (isset($_POST["clave"]) && $_FILES["foto"]["name"] != "") {
-        //Cambia clave y foto
-        $consulta = "UPDATE usuarios SET nombre = '" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', clave = '" . $_POST["clave"] . "', dni = '" . $_POST["dni"] . "', sexo = '" . $_POST["sexo"] . "', foto = '" . $_FILES["foto"]["tmp_name"] . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
-    } elseif (isset($_POST["clave"])) {
-        //Cambia sólo clave
-        $consulta = "UPDATE usuarios SET nombre = '" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', clave = '" . $_POST["clave"] . "', dni = '" . $_POST["dni"] . "', sexo = '" . $_POST["sexo"] . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
-    } else {
-        //Cambia sólo foto
-        $consulta = "UPDATE usuarios SET nombre = '" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', dni = '" . $_POST["dni"] . "', sexo = '" . $_POST["sexo"] . "', foto = '" . $_FILES["foto"]["tmp_name"] . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
-    }
+            $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"], "id_usuario", $_POST["boton_confirmar_editar"]);
 
-    try {
+            if (is_string($error_usuario)) {
 
-        $resultado = mysqli_query($conexion, $consulta);
-        $mensaje_accion = "Usuario editado con éxito";
-    } catch (Exception $e) {
+                mysqli_close($conexion);
+                die(pag_error("Práctica 8", "Editar usuario", $error_usuario));
+            }
+        }
 
-        $mensaje = "No ha sido posible editar el usuario. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-        mysqli_close($conexion);
-        die(pag_error("Práctica 8", "Editar usuario", $mensaje));
+        if (!$error_dni) {
+
+            $error_dni = repetido($conexion, "usuarios", "dni", $_POST["dni"], "id_usuario", $_POST["boton_confirmar_editar"]);
+
+            if (is_string($error_dni)) {
+
+                mysqli_close($conexion);
+                die(pag_error("Práctica 8", "Editar usuario", $error_dni));
+            }
+        }
+
+        $error_form = $error_nombre || $error_usuario || $error_dni || $error_sexo || $error_foto;
+
+        if (!$error_form) {
+        }
+        if ($_POST["clave"] != "") {
+            //Cambia clave
+            $consulta = "UPDATE usuarios SET nombre = '" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', clave = '" . $_POST["clave"] . "', dni = '" . strtoupper($_POST["dni"]) . "', sexo = '" . $_POST["sexo"] . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
+        } else {
+            //No cambia clave
+            $consulta = "UPDATE usuarios SET nombre = '" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', dni = '" . strtoupper($_POST["dni"]) . "', sexo = '" . $_POST["sexo"] . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
+        }
+
+        try {
+
+            $resultado = mysqli_query($conexion, $consulta);
+            $mensaje_accion = "Usuario editado con éxito";
+
+            //Ahora añadimos la foto si la hay
+            if ($_FILES["foto"]["name"] != "") {
+                //Extension
+                $array_nombre = explode(".", $_FILES["foto"]["name"]);
+                $extension = "";
+                if (count($array_nombre) > 1)
+                    $extension = "." . strtolower(end($array_nombre));
+                //Nombre
+                $nombre_imagen = "img_" . $_POST["boton_confirmar_editar"] . $extension;
+                //Mover
+                @$var = move_uploaded_file($_FILES["foto"]["tmp_name"], "Img/" . $nombre_imagen);
+                if ($var) {
+
+                    if ($nombre_imagen != $_POST["nombre_foto"]) { //Si la foto cambia
+
+                        try { //Actualizamos
+                            $consulta = "UPDATE usuarios SET foto = '" . $nombre_imagen . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
+                            mysqli_query($conexion, $consulta);
+
+                            if ($_POST["nombre_foto"] != "no_imagen.jpg") { //Si ya tenoia foto
+                                unlink("Img/" . $_POST["nombre_foto"]);
+                            }
+                        } catch (Exception $e) {
+                            $mensaje = "Imposible subir la imagen. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+                            mysqli_close($conexion);
+                            die(pag_error("Práctica 8", "Añadir imagen", $mensaje));
+                        }
+                    }
+                } else { //Si no se puede mover la foto
+
+                    $mensaje_accion = "Usuario editado a falta de la imagen. No ha sido posible subir la imagen al servidor";
+                }
+            }
+        } catch (Exception $e) {
+
+            $mensaje = "No ha sido posible editar el usuario. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+            mysqli_close($conexion);
+            die(pag_error("Práctica 8", "Editar usuario", $mensaje));
+        }
     }
 }
 
 
-/***************************  NUEVO USUARIO - CONFIRMACIÓN   **************************/
+/***********************  NUEVO USUARIO - CONFIRMACIÓN   **********************/
 if (isset($_POST["boton_confirmar_nuevo"])) {
 
     $error_nombre = $_POST["nombre"] == "";
@@ -168,6 +234,9 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
         }
     }
 }
+
+/*****************************  PÁGINA PRINCIPAL   ****************************/
+
 ?>
 
 <!DOCTYPE html>
@@ -198,7 +267,7 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
         }
 
         table img {
-            width: 50px;
+            height: 50px;
         }
 
         p img {
@@ -225,17 +294,17 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
 
     <?php
 
+    //Si no hay conexión, conecta
     if (!isset($conexion)) {
+
+        try {
+            $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+
+            die("<p class='centrar'>Imposible conectar. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error() . "</p>");
+        }
     }
-    try {
-        $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
-        mysqli_set_charset($conexion, "utf8");
-    } catch (Exception $e) {
-
-        die("<p class='centrar'>Imposible conectar. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error() . "</p>");
-    }
-
-
     /***************************  BOTON LISTAR  **************************/
 
     if (isset($_POST["boton_listar"])) {
@@ -317,9 +386,9 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
             <p>
                 <label for="foto">Incluir mi foto (max. 500KB) </label>
                 <input type="file" name="foto" id="foto" accept="image/*" />
-                <?php 
-                if (isset($_POST["boton_confirma_nuevo"]) && $error_foto) {
-                    
+                <?php
+                if (isset($_POST["boton_confirmar_nuevo"]) && $error_foto) {
+
                     if ($_FILES["foto"]["error"]) {
                         echo "<span class='error'>Error en la subida del fichero</span>";
                     } elseif (!getimagesize($_FILES["foto"]["tmp_name"])) {
@@ -351,8 +420,135 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
         echo "<form action='index.php' method='post'>
                 <button type='submit'>Volver</button>
                 <button name='boton_confirmar_borrar' type='submit' value='" . $_POST["boton_borrar"] . "'>Borrar</button>
+                <input type='hidden' name = 'nombre_foto' value='" . $_POST["nombre_foto"] . "'/>
             </form>";
         echo "</div>";
+    }
+
+    /***************************   EDITAR USUARIO  **************************/
+
+    if (isset($_POST["boton_editar"]) || (isset($_POST["boton_confirmar_editar"]) && $error_form)) {
+
+
+        if (isset($_POST["boton_editar"])) {
+
+            $id_usuario = $_POST["boton_editar"];
+            $consulta = "SELECT * FROM usuarios WHERE id_usuario = '" . $_POST["boton_editar"] . "'";
+
+            try {
+
+                $resultado = mysqli_query($conexion, $consulta);
+                if (mysqli_num_rows($resultado) > 0) {
+
+                    $tupla = mysqli_fetch_assoc($resultado);
+                    $nombre = $tupla["nombre"];
+                    $usuario = $tupla["usuario"];
+                    $dni = $tupla["dni"];
+                    $sexo = $tupla["sexo"];
+                    $foto = $tupla["foto"];
+                } else {
+                    $error_consistencia = "El usuario seleccionado ya no se encuentra en la base de datos";
+                }
+
+                mysqli_free_result($resultado);
+            } catch (Exception $e) {
+                $mensaje = "<p class='centrar'>Imposible realizar consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion) . "</p>";
+                mysqli_close($conexion);
+                die($mensaje);
+            }
+        } else {
+
+            $id_usuarioo = $_POST["boton_confirmar_editar"];
+            $nombre = $_POST["nombre"];
+            $usuario = $_POST["usuario"];
+            $dni = $_POST["dni"];
+            $sexo = $_POST["sexo"];
+            $foto = $_POST["foto"];
+        }
+
+        echo "<h2 class='centrar'>Editando al usuario con ID: " . $id_usuario . "</h2>";
+        if (isset($error_consistencia)) {
+            echo "<div class='centrar'>";
+            echo "<p>" . $error_consistencia . "</p>";
+            echo "<form method='post' action='index.php'>";
+            echo "<p><button type='submit'>Volver</button></p>";
+            echo "</form>";
+            echo "</div>";
+        }
+
+
+    ?>
+        <form action="index.php" method="post" enctype="multipart/form-data" class="centrar">
+            <p>
+                <label for="nombre">Nombre:</label>
+                <input type="text" name="nombre" id="nombre" maxlength="30" value="<?php echo $nombre; ?>">
+                <?php if (isset($_POST["nombre"]) && $error_nombre) echo "<span class='error'> Campo vacío </span>" ?>
+            </p>
+            <p>
+                <label for="usuario">Usuario:</label>
+                <input type="text" name="usuario" id="usuario" maxlength="20" value="<?php echo $usuario; ?>">
+                <?php if (isset($_POST["usuario"]) && $error_usuario) {
+                    if ($_POST["usuario"] == "")
+                        echo "<span class='error'> Campo vacío </span>";
+                    else
+                        echo "<span class='error'> Usuario ya existente </span>";
+                }  ?>
+            </p>
+            <p>
+                <label for="clave">Contraseña:</label>
+                <input type="password" name="clave" id="clave" maxlength="20" placeholder="Editar contraseña">
+            </p>
+
+            <p>
+                <label for="dni">DNI:</label>
+                <input type="text" name="dni" id="dni" maxlength="10" value="<?php echo $dni; ?>" placeholder="DNI: 11223344Z">
+                <?php if (isset($_POST["dni"]) && $error_dni) {
+                    if ($_POST["dni"] == "")
+                        echo "<span class='error'> Campo vacío </span>";
+                    elseif (!dni_formato($_POST["dni"])) {
+                        echo "<span class='error'> Escriba un DNI con formato válido</span>";
+                    } elseif (!dni_valido($_POST["dni"]))
+                        echo "<span class='error'> DNI no válido</span>";
+                    else
+                        echo "<span class='error'>DNI ya en uso</span>";
+                } ?>
+            <p>
+                <label>Sexo:</label>
+                <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_sexo) echo "<span class='error'> Debe seleccionar un sexo </span>" ?>
+                <br />
+                <input type="radio" name="sexo" id="hombre" value="hombre" <?php if ($sexo == "hombre") echo "checked" ?>>
+                <label for="hombre"> Hombre</label><br />
+                <input type="radio" name="sexo" id="mujer" value="mujer" <?php if ($sexo == "mujer") echo "checked" ?>>
+                <label for="mujer"> Mujer</label>
+            </p>
+
+            <p>
+                <label for="foto">Incluir mi foto (max. 500KB) </label>
+                <input type="file" name="foto" id="foto" accept="image/*" />
+                <?php
+                if (isset($_POST["boton_confirma_nuevo"]) && $error_foto) {
+
+                    if ($_FILES["foto"]["error"]) {
+                        echo "<span class='error'>Error en la subida del fichero</span>";
+                    } elseif (!getimagesize($_FILES["foto"]["tmp_name"])) {
+                        echo "<span class='error'>El archivo debe ser una imagen</span>";
+                    } else {
+                        echo "<span class='error'>La imagen no debe exceder los 500KB</span>";
+                    }
+                }
+                ?>
+            </p>
+
+            <p>
+                <button type="submit" name="boton_volver">Volver</button>
+                <input type="hidden" name="nombre_foto" value="<?php echo $foto; ?>">
+                <!--input type="hidden" name ="id_usuario" value = ""-->
+                <button type="submit" name="boton_confirmar_editar" value="<?php echo $id_usuario; ?>">Guardar cambios</button>
+            </p>
+        </form>
+
+    <?php
+
     }
 
     /************************** TABLA PRINCIPAL **************************/
@@ -392,6 +588,7 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
                 </td>";
             echo "<td>
                     <form method='post' action='index.php'>
+                        <input type='hidden' name= 'nombre_foto' value='" . $tupla["foto"] . "'/>
                         <button name='boton_borrar' value='" . $tupla["id_usuario"] . "' class='enlace' type='submit'>Borrar</button>
                         -
                         <button name='boton_editar' value='" . $tupla["id_usuario"] . "' class='enlace' type='submit'>Editar</button>
@@ -404,7 +601,7 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
         mysqli_close($conexion);
     } catch (Exception $e) {
 
-        $mensaje = "<p>Imposible realizar la conexión. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error() . "</p>";
+        $mensaje = "<p>Imposible realizar la conexión. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion) . "</p>";
         mysqli_close($conexion);
         die($mensaje);
     }
