@@ -337,10 +337,11 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
 
     /************************** TABLA PRINCIPAL **************************/
 
-    require "vistas/tabla_principal.php";
-
-    if (isset($mensaje_accion)) //Vista mensaje acción
+    if (isset($mensaje_accion)) {
         echo "<p class='centrar'>" . $mensaje_accion . "</p>";
+    }
+
+    require "vistas/tabla_principal.php";
 
     mysqli_close($conexion);
 

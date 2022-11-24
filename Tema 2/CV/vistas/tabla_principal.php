@@ -7,10 +7,6 @@ try {
 
     echo "<h3 class='centrar'>Listado de los usuarios</h3>";
 
-    if (isset($mensaje_accion)) {
-        echo "<p class='centrar'>" . $mensaje_accion . "</p>";
-    }
-
     echo "<table class='centrar texto-centrado'>";
     echo "<tr>
             <th>#</th>
