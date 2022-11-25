@@ -23,9 +23,10 @@ while ($tupla = mysqli_fetch_assoc($resultado)) {
             <td><form method='post' action='index.php'><button name='boton_listar' value='" . $tupla["idPelicula"] . "'><img src='Img/" . $tupla["caratula"] . "'/></button></form></td>
             <td>
                 <form action='index.php' method='post'>
-                    <button type='submit' name'boton_borrar' value'" . $tupla["idPelicula"] . "'>Borrar</button>
+                    <button type='submit' name='boton_borrar' value='" . $tupla["idPelicula"] . "'>Borrar</button>
                      - 
-                    <button type='submit' name'boton_editar' value'" . $tupla["idPelicula"] . "'>Editar</button>
+                    <button type='submit' name='boton_editar' value='" . $tupla["idPelicula"] . "'>Editar</button>
+                    <input type='hidden' name='nombre_caratula' value='".$tupla["caratula"]."'/>
             </td>
         </tr>";
 }

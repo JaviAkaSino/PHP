@@ -106,15 +106,15 @@ if (isset($_POST["boton_confirmar_editar"])) {
             if (count($array_nombre) > 1)
                 $extension = "." . strtolower(end($array_nombre));
             //Nombre
-            $nombre_imagen = "img_" . $_POST["boton_confirmar_editar"] . $extension;
+            $nueva_imagen = "img_" . $_POST["boton_confirmar_editar"] . $extension;
             //Mover
-            @$var = move_uploaded_file($_FILES["foto"]["tmp_name"], "Img/" . $nombre_imagen);
+            @$var = move_uploaded_file($_FILES["foto"]["tmp_name"], "Img/" . $nueva_imagen);
             if ($var) {
 
-                if ($nombre_imagen != $_POST["nombre_foto"]) { //Si la foto cambia
+                if ($nueva_imagen != $_POST["nombre_foto"]) { //Si la foto cambia
 
                     try { //Actualizamos
-                        $consulta = "UPDATE usuarios SET foto = '" . $nombre_imagen . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
+                        $consulta = "UPDATE usuarios SET foto = '" . $nueva_imagen . "' WHERE id_usuario = '" . $_POST["boton_confirmar_editar"] . "'";
                         mysqli_query($conexion, $consulta);
 
                         if ($_POST["nombre_foto"] != "no_imagen.jpg") { //Si ya tenoia foto
@@ -123,6 +123,8 @@ if (isset($_POST["boton_confirmar_editar"])) {
                             }
                         }
                     } catch (Exception $e) {
+                        if(is_file("Img/".$nueva_imagen))
+                            unlink("img/".$nueva_imagen);
                         $mensaje = "Imposible subir la imagen. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
                         mysqli_close($conexion);
                         die(pag_error("Práctica 8", "Añadir imagen", $mensaje));
@@ -198,15 +200,17 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
                     $extension = "." . strtolower(end($array_nombre));
                 //Nombre
                 $ultimo_id = mysqli_insert_id($conexion); //Último id
-                $nombre_imagen = "img_" . $ultimo_id . $extension;
+                $nueva_imagen = "img_" . $ultimo_id . $extension;
                 //Mover
-                @$var = move_uploaded_file($_FILES["foto"]["tmp_name"], "Img/" . $nombre_imagen);
+                @$var = move_uploaded_file($_FILES["foto"]["tmp_name"], "Img/" . $nueva_imagen);
                 if ($var) {
 
                     try {
-                        $consulta = "UPDATE usuarios SET foto = '" . $nombre_imagen . "' WHERE id_usuario = '" . $ultimo_id . "'";
+                        $consulta = "UPDATE usuarios SET foto = '" . $nueva_imagen . "' WHERE id_usuario = '" . $ultimo_id . "'";
                         mysqli_query($conexion, $consulta);
                     } catch (Exception $e) {
+                        if(is_file("Img/".$nueva_imagen))
+                            unlink("img/".$nueva_imagen);
                         $mensaje = "Imposible subir la imagen. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
                         mysqli_close($conexion);
                         die(pag_error("Práctica 8", "Añadir imagen", $mensaje));

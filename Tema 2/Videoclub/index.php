@@ -1,5 +1,36 @@
 <?php
 require "src/bd_config.php";
+
+//CONEXIÓN
+try {
+    $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+    mysqli_set_charset($conexion, "utf8");
+} catch (Exception $e) {
+    die(pag_error(
+        "Práctica 9 - Javier Parodi",
+        "Videoclub",
+        "No ha sido posible conectar a la base de datos. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error()
+    ));
+}
+
+/***************** CONFIRMAR BORRAR PELÍCULA ****************/
+
+if (isset($_POST["boton_confirmar_borrar"])) {
+
+        $consulta = "DELETE FROM peliculas WHERE idPelicula='" . $_POST["boton_confirmar_borrar"] . "'";
+    try {
+        mysqli_query($conexion, $consulta);
+        $mensaje_accion = "Usuario ".$_POST["boton_confirmar_borrar"]." borrado con éxito.";
+        if ($_POST["nombre_caratula"] != "no_imagen.jpg")
+            unlink("Img/" . $_POST["nombre_caratula"]);
+    } catch (Exception $e) {
+        die(pag_error(
+            "Práctica 9 - Javier Parodi",
+            "Videoclub",
+            "No ha sido posible conectar a la base de datos. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error()
+        ));
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -51,7 +82,7 @@ require "src/bd_config.php";
             box-shadow: 0px 2px 10px 5px orangered;
         }
 
-        p > img {
+        p>img {
             max-width: 150px;
             max-height: 100px;
             box-shadow: 0px 2px 10px 5px orange;
@@ -62,7 +93,7 @@ require "src/bd_config.php";
             margin: 1rem auto;
         }
 
-        .negrita{
+        .negrita {
             font-weight: 800;
         }
     </style>
@@ -74,18 +105,6 @@ require "src/bd_config.php";
 
     <?php
 
-    //CONEXIÓN
-    try {
-        $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
-        mysqli_set_charset($conexion, "utf8");
-    } catch (Exception $e) {
-        die(pag_error(
-            "Práctica 9 - Javier Parodi",
-            "Videoclub",
-            "No ha sido posible conectar a la base de datos. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error()
-        ));
-    }
-
     /***************** TABLA PRINCIPAL ****************/
 
     require "vistas/tabla.php";
@@ -95,30 +114,28 @@ require "src/bd_config.php";
     if (isset($_POST["boton_listar"])) {
 
         require "vistas/listar.php";
-
-        try {
-
-            $consulta = "SELECT * FROM peliculas WHERE idPelicula='" . $_POST["boton_listar"] . "'";
-            $resultado = mysqli_query($conexion, $consulta);
-
-            if (mysqli_num_rows($resultado) > 0)
-                $tupla = mysqli_fetch_assoc($resultado);
-                echo "<div class='centrar'>";
-                echo "<h3>Datos de la película con ID - ".$tupla["idPelicula"]."</h3>";
-                
-                echo "<p><span class='negrita'>Título: </span>".$tupla["titulo"]."</p>";
-                echo "<p><span class='negrita'>Director: </span>".$tupla["director"]."</p>";
-                echo "<p><span class='negrita'>Temática: </span>".$tupla["tematica"]."</p>";
-                echo "<p><span class='negrita'>Sinopsis: </span>".$tupla["sinopsis"]."</p>";
-                echo "<p><span class='negrita'>Carátula: </span><br/><br/><img src='Img/".$tupla["caratula"]."'/></p>";
-                echo "</div>";
-        } catch (Exception $e) {
-
-            $mensaje = "No se ha podido listar los datos de la película. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-            mysqli_close($conexion);
-            die($mensaje);
-        }
     }
+
+    /***************** NUEVA PELÍCULA ****************/
+
+    if(isset($_POST["boton_nueva"]) || (isset($_POST["boton_confirmar_nueva"]) && $error_form)){
+
+        require "vistas/nueva.php";
+    }
+    /***************** BORRAR PELÍCULA ****************/
+
+    if (isset($_POST["boton_borrar"])) {
+
+        require "vistas/borrar.php";
+    }
+
+
+
+
+    if (isset($mensaje_accion)) {
+        echo "<p class='centrar'>" . $mensaje_accion . "</p>";
+    }
+    mysqli_close($conexion);
     ?>
 </body>
 
