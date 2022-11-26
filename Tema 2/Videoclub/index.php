@@ -12,15 +12,53 @@ try {
         "No ha sido posible conectar a la base de datos. Error Nº " . mysqli_connect_errno() . ": " . mysqli_connect_error()
     ));
 }
+/***************** CONFIRMAR NUEVA PELÍCULA ****************/
 
+if (isset($_POST["boton_confirmar_nueva"])) {
+
+    $error_titulo = $_POST["titulo"] == "";
+    $error_director = $_POST["director"] == "";
+    $error_tematica = $_POST["tematica"] == "";
+    $error_sinopsis = $_POST["sinopsis"] == "";
+    $error_caratula = $_FILES["caratula"]["name"] != "" &&
+        ($FILES["caratula"]["error"] || !getimagesize($_FILES["caratula"]["tmp_name"]) || $_FILES["caratula"]["size"] > 1000000);
+
+    if (!$error_titulo && !$error_director){
+
+        $titulo_repetido = repetido($conexion, "peliculas", "titulo", $_POST["titulo"]);
+        $director_repetido = repetido($conexion, "peliculas", "director", $_POST["director"]);
+
+        $error_titulo = $titulo_repetido && $director_repetido;
+        $error_director = $titulo_repetido && $director_repetido;
+
+        if (is_string($error_titulo)){
+            mysqli_close($conexion);
+            die(pag_error("Práctica 9 - Javier Parodi", "Videoclub", $error_titulo));
+        }
+    }
+
+    $error_form = $error_titulo || $error_director || $error_tematica || $error_sinopsis || $error_caratula;
+
+    if (!$error_form) {
+
+        try{
+
+
+        } catch (exception $e){
+
+            $mensaje = 
+        }
+
+    }
+}
 /***************** CONFIRMAR BORRAR PELÍCULA ****************/
 
 if (isset($_POST["boton_confirmar_borrar"])) {
 
-        $consulta = "DELETE FROM peliculas WHERE idPelicula='" . $_POST["boton_confirmar_borrar"] . "'";
+    $consulta = "DELETE FROM peliculas WHERE idPelicula='" . $_POST["boton_confirmar_borrar"] . "'";
     try {
         mysqli_query($conexion, $consulta);
-        $mensaje_accion = "Usuario ".$_POST["boton_confirmar_borrar"]." borrado con éxito.";
+        $mensaje_accion = "Usuario " . $_POST["boton_confirmar_borrar"] . " borrado con éxito.";
         if ($_POST["nombre_caratula"] != "no_imagen.jpg")
             unlink("Img/" . $_POST["nombre_caratula"]);
     } catch (Exception $e) {
@@ -118,7 +156,7 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
     /***************** NUEVA PELÍCULA ****************/
 
-    if(isset($_POST["boton_nueva"]) || (isset($_POST["boton_confirmar_nueva"]) && $error_form)){
+    if (isset($_POST["boton_nueva"]) || (isset($_POST["boton_confirmar_nueva"]) && $error_form)) {
 
         require "vistas/nueva.php";
     }

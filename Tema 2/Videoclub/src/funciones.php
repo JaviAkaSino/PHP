@@ -14,3 +14,23 @@ function pag_error($titulo, $cabecera, $mensaje)
         </body>
         </html>";
 }
+
+function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $valor_clave = null)
+{
+    if (isset($columna_clave))
+        $consulta = "SELECT " . $columna . " FROM " . $tabla . " WHERE " . $columna . " = " . $valor . "' AND " . $columna_clave . " <> '" . $valor_clave . "'";
+    else
+        $consulta = "SELECT " . $columna . " FROM " . $tabla . " WHERE " . $columna . " = '" . $valor . "'";
+
+
+    try {
+        $resultado = mysqli_query($conexion, $columna);
+
+        $respuesta = mysqli_num_rows($resultado) > 0;
+
+        mysqli_free_result($resultado);
+    } catch (Exception $e) {
+
+        $respuesta = "No se ha podido verificar que los valores nos ean repetidos. Error Nº" . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+    }
+}
