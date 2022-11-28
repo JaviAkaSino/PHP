@@ -23,7 +23,7 @@ if (isset($_POST["boton_confirmar_nueva"])) {
     $error_caratula = $_FILES["caratula"]["name"] != "" &&
         ($FILES["caratula"]["error"] || !getimagesize($_FILES["caratula"]["tmp_name"]) || $_FILES["caratula"]["size"] > 1000000);
 
-    if (!$error_titulo && !$error_director){
+    if (!$error_titulo && !$error_director) {
 
         $titulo_repetido = repetido($conexion, "peliculas", "titulo", $_POST["titulo"]);
         $director_repetido = repetido($conexion, "peliculas", "director", $_POST["director"]);
@@ -31,7 +31,7 @@ if (isset($_POST["boton_confirmar_nueva"])) {
         $error_titulo = $titulo_repetido && $director_repetido;
         $error_director = $titulo_repetido && $director_repetido;
 
-        if (is_string($error_titulo)){
+        if (is_string($error_titulo)) {
             mysqli_close($conexion);
             die(pag_error("Práctica 9 - Javier Parodi", "Videoclub", $error_titulo));
         }
@@ -41,14 +41,16 @@ if (isset($_POST["boton_confirmar_nueva"])) {
 
     if (!$error_form) {
 
-        try{
+        $consulta = "INSERT INTO peliculas (titulo, director, tematica, sinopsis)
+                VALUES ()";
 
+        try {
+        } catch (Exception $e) {
 
-        } catch (exception $e){
-
-            $mensaje = 
+            $mensaje = "Imposible realizar la inserción. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+            mysqli_close($conexion);
+            die(pag_error("Práctica 9", "Videoclub", $mensaje));
         }
-
     }
 }
 /***************** CONFIRMAR BORRAR PELÍCULA ****************/
