@@ -24,7 +24,7 @@ function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $v
 
 
     try {
-        $resultado = mysqli_query($conexion, $columna);
+        $resultado = mysqli_query($conexion, $consulta);
 
         $respuesta = mysqli_num_rows($resultado) > 0;
 
@@ -33,4 +33,6 @@ function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $v
 
         $respuesta = "No se ha podido verificar que los valores nos ean repetidos. Error Nº" . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
     }
+
+    return $respuesta;
 }
