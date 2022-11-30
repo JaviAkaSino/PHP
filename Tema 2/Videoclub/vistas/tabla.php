@@ -11,7 +11,7 @@ echo "<table class='centrar'>
             <th>ID</th>
             <th>Título</th>
             <th>Carátula</th>
-            <th><form action='index.php' method='post'><label>Películas </label><button name='boton_nueva'>[+]</button></form></th>
+            <th><form action='index.php' method='post' enctype='multipart/form-data' ><label>Películas </label><button name='boton_nueva'>[+]</button></form></th>
         </tr>";
 
 
@@ -22,11 +22,12 @@ while ($tupla = mysqli_fetch_assoc($resultado)) {
             <td><form method='post' action='index.php'><button name='boton_listar' value='" . $tupla["idPelicula"] . "'>" . $tupla["titulo"] . "</button></form></td>
             <td><form method='post' action='index.php'><button name='boton_listar' value='" . $tupla["idPelicula"] . "'><img src='Img/" . $tupla["caratula"] . "'/></button></form></td>
             <td>
-                <form action='index.php' method='post'>
+                <form action='index.php' method='post' enctype='multipart/form-data'>
                     <button type='submit' name='boton_borrar' value='" . $tupla["idPelicula"] . "'>Borrar</button>
                      - 
                     <button type='submit' name='boton_editar' value='" . $tupla["idPelicula"] . "'>Editar</button>
                     <input type='hidden' name='nombre_caratula' value='".$tupla["caratula"]."'/>
+                </form>
             </td>
         </tr>";
 }

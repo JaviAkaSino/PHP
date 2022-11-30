@@ -49,13 +49,14 @@ if (isset($_POST["boton_confirmar_nueva"])) {
 
         try {
             mysqli_query($conexion, $consulta); //Realizamos la inserción sin foto
-            $mensaje_accion = "Usuario insertado con éxito"; //Hasta aquí, éxito
+            $mensaje_accion = "Película insertada con éxito"; //Hasta aquí, éxito
             if ($_FILES["caratula"]["name"] != "") { //Si hay foto
                 //Trataremos de moverla
                 $ultimo_id = mysqli_insert_id($conexion); //Último id
+                $extension = "";
                 $arr_nombre = explode(".", $_FILES["caratula"]["name"]); //Separamos por puntos
                 if (count($arr_nombre) > 1) //Si tiene extension
-                    $extension = "." . end($arr_nombre); //La cogemos
+                    $extension = "." . strtolower(end($arr_nombre)); //La cogemos
                 $nueva_imagen = "img_" . $ultimo_id . $extension; //Montamos el nombre
                 //E intentamos moverla a la carpeta Img
                 @$var = move_uploaded_file($_FILES["caratula"]["tmp_name"], "Img/" . $nueva_imagen);
@@ -73,7 +74,7 @@ if (isset($_POST["boton_confirmar_nueva"])) {
                         die(pag_error("Práctica 9", "Práctica 9", $mensaje));
                     }
                 } else { //Si no se ha podido mover la foto
-                    $mensaje_accion = "Usuario añadido con imagen por defecto. No ha sido posbile subir la imagen al servidor";
+                    $mensaje_accion = "Película añadida con imagen por defecto. No ha sido posbile subir la imagen al servidor";
                 }
             }
         } catch (Exception $e) {
@@ -96,7 +97,7 @@ if (isset($_POST["boton_confirmar_borrar"])) {
     $consulta = "DELETE FROM peliculas WHERE idPelicula='" . $_POST["boton_confirmar_borrar"] . "'";
     try {
         mysqli_query($conexion, $consulta);
-        $mensaje_accion = "Usuario " . $_POST["boton_confirmar_borrar"] . " borrado con éxito.";
+        $mensaje_accion = "Película " . $_POST["boton_confirmar_borrar"] . " borrada con éxito.";
         if ($_POST["nombre_caratula"] != "no_imagen.jpg")
             unlink("Img/" . $_POST["nombre_caratula"]);
     } catch (Exception $e) {
@@ -201,9 +202,11 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
     /***************** EDITAR PELÍCULA ****************/
 
-    if (isset($_POST["boton_editar"]) || (isset($_POST["boton_confirmar_editar"]) && $error_form)
+    if (
+        isset($_POST["boton_editar"]) || (isset($_POST["boton_confirmar_editar"]) && $error_form)
         || isset($_POST["boton_borrar_caratula"]) || isset($_POST["boton_confirmar_borrar_caratula"])
-        || isset($_POST["boton_volver_borrar_caratula"])){
+        || isset($_POST["boton_volver_borrar_caratula"])
+    ) {
 
         require "vistas/editar.php";
     }

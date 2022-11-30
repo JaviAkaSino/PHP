@@ -4,7 +4,7 @@ session_start();
 if (!isset($_SESSION["pos_x"]))
     $_SESSION["pos_x"] = 0;
 
-    if (!isset($_SESSION["pos_y"]))
+if (!isset($_SESSION["pos_y"]))
     $_SESSION["pos_y"] = 0;
 ?>
 
@@ -15,7 +15,7 @@ if (!isset($_SESSION["pos_x"]))
     <meta charset="UTF-8">
     <title>Sesiones - Ejercicio 4</title>
     <style>
-       div#todo{
+        div#todo {
             display: flex;
             flex-flow: column;
             align-items: center;
@@ -26,8 +26,8 @@ if (!isset($_SESSION["pos_x"]))
             line-height: 40px;
         }
 
-        svg{
-            border:2px solid black;
+        svg {
+            border: 2px solid black;
         }
     </style>
 </head>
@@ -47,12 +47,14 @@ if (!isset($_SESSION["pos_x"]))
         <div id="todo">
 
             <p id="manos">
+                <button type="submit" name="accion" value="arriba">&#x261D;</button>
                 <button type="submit" name="accion" value="izquierda">&#x261C;</button>
                 <button type="submit" name="accion" value="derecha">&#x261E;</button>
+                <button type="submit" name="accion" value="abajo">&#x261F;</button>
             </p>
             <p>
-                <svg version="1.1" xmlns=http://www.w3.org/2000/svg width="400px" height="400px" viewbox="-200 -200 200 200">
-                    <circle cx="<?php echo $_SESSION["pos_x"]?>" cy="<?php echo $_SESSION["pos_y"]?>" r="8" fill="red" />
+                <svg version="1.1" xmlns=http://www.w3.org/2000/svg width="400px" height="400px" viewbox="-200 -200 400 400">
+                    <circle cx="<?php echo $_SESSION["pos_x"] ?>" cy="<?php echo $_SESSION["pos_y"] ?>" r="8" fill="red" />
                 </svg>
             </p>
 
