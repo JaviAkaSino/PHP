@@ -1,12 +1,12 @@
 <?php
 try {
 
-$consulta = "SELECT * FROM peliculas";
-$resultado = mysqli_query($conexion, $consulta);
+    $consulta = "SELECT * FROM peliculas";
+    $resultado = mysqli_query($conexion, $consulta);
 
 
-echo "<h3 class='centrar'>Listado de películas</h3>";
-echo "<table class='centrar'>
+    echo "<h3 class='centrar'>Listado de películas</h3>";
+    echo "<table class='centrar' id='principal'>
         <tr>
             <th>ID</th>
             <th>Título</th>
@@ -15,9 +15,9 @@ echo "<table class='centrar'>
         </tr>";
 
 
-while ($tupla = mysqli_fetch_assoc($resultado)) {
+    while ($tupla = mysqli_fetch_assoc($resultado)) {
 
-    echo "<tr>
+        echo "<tr>
             <td>" . $tupla["idPelicula"] . "</td>
             <td><form method='post' action='index.php'><button name='boton_listar' value='" . $tupla["idPelicula"] . "'>" . $tupla["titulo"] . "</button></form></td>
             <td><form method='post' action='index.php'><button name='boton_listar' value='" . $tupla["idPelicula"] . "'><img src='Img/" . $tupla["caratula"] . "'/></button></form></td>
@@ -26,18 +26,18 @@ while ($tupla = mysqli_fetch_assoc($resultado)) {
                     <button type='submit' name='boton_borrar' value='" . $tupla["idPelicula"] . "'>Borrar</button>
                      - 
                     <button type='submit' name='boton_editar' value='" . $tupla["idPelicula"] . "'>Editar</button>
-                    <input type='hidden' name='nombre_caratula' value='".$tupla["caratula"]."'/>
+                    <input type='hidden' name='nombre_caratula' value='" . $tupla["caratula"] . "'/>
                 </form>
             </td>
         </tr>";
-}
+    }
 
-echo "</table>";
+    echo "</table>";
 
-mysqli_free_result($resultado);
+    mysqli_free_result($resultado);
 } catch (Exception $e) {
 
-$mensaje = "No ha sido posible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-mysqli_close($conexion);
-die($mensaje);
+    $mensaje = "No ha sido posible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+    mysqli_close($conexion);
+    die($mensaje);
 }

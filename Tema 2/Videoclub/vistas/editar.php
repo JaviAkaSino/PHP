@@ -1,26 +1,7 @@
 <?php
 
-if (isset($_POST["boton_borrar_caratula"])) {
-
-    die( "<div class='centrar'>
-            <p>Se dispone usted a borrar la carátula de la película con ID = " . $_POST["idPelicula"] . "</p>
-            <p>
-                Cambiará esta carátula: 
-                <img src='Img/" . $_POST["caratula"] . "' alt='Carátula anterior' title='Carátula anterior'/> 
-                por esta otra: 
-                <img src='Img/no_imagen.jpg' alt='Carátula anterior' title='Carátula anterior'/>
-            </p>
-            <p>
-                <button type='submit' name='boton_volver_borrar_caratula' >Volver</button>
-                <button type='submit' name='boton_confirmar_borrar_caratula' >Borrar</button>
-            </p>
-        </div>"
-);}
 //Salvo que entremos por confirmar, cogemos los datos existentes
-if (
-    isset($_POST["boton_editar"]) || isset($_POST["boton_borrar_caratula"]) ||
-    isset($_POST["boton_confirmar_borrar_caratula"]) || isset($_POST["boton_volver_borrar_caratula"])
-) {
+if (isset($_POST["boton_editar"]) || isset($_POST["boton_confirmar_borrar_caratula"]) || isset($_POST["boton_volver_borrar_caratula"])) {
 
     if (isset($_POST["boton_editar"]))
         $idPelicula = $_POST["boton_editar"]; //Cuando se entra por editar se le da el valor
@@ -68,34 +49,68 @@ if (isset($error_consistencia)) { //Si hay error de consistencia, lo muestra
     <div class='centrar'>
         <h3>Editar película</h3>
         <form action="index.php" method="post" enctype="multipart/form-data">
-            <p>
-                <label for="titulo" class="negrita">Título</label><br />
-                <input type="text" name="titulo" id="titulo" maxlength="15" placeholder="Título de la película" value="<?php if (isset($_POST["titulo"])) echo $_POST["titulo"]; ?>" />
-                <?php if (isset($_POST["titulo"]) && $error_titulo)
-                    if ($_POST["titulo"] == "")
-                        echo "<span class='error'>* Campo vacío</span>";
-                    else
-                        echo "<span class='error'>* Película repetida, seleccione otro título o director</span>"; ?>
-            </p>
-            <p>
-                <label for="director" class="negrita">Director</label><br />
-                <input type="text" name="director" id="director" maxlength="20" placeholder="Nombre del director" value="<?php if (isset($_POST["director"])) echo $_POST["director"]; ?>" />
-                <?php if (isset($_POST["director"]) && $error_director)
-                    if ($_POST["director"] == "")
-                        echo "<span class='error'>* Campo vacío</span>";
-                    else
-                        echo "<span class='error'>* Película repetida, seleccione otro título o director</span>"; ?>
-            </p>
-            <p>
-                <label for="tematica" class="negrita">Temática</label><br />
-                <input type="text" name="tematica" id="tematica" maxlength="15" placeholder="Temática de la película" value="<?php if (isset($_POST["tematica"])) echo $_POST["tematica"]; ?>" />
-                <?php if (isset($_POST["tematica"]) && $error_tematica)
-                    echo "<span class='error'>* Campo vacío</span>"; ?>
-            </p>
+
+
+            <table>
+                <tr>
+                    <td>
+                        <p>
+                            <label for="titulo" class="negrita">Título</label><br />
+                            <input type="text" name="titulo" id="titulo" maxlength="15" placeholder="Título de la película" value="<?php echo $titulo; ?>" />
+                            <?php
+                            if (isset($_POST["boton_confirmar_editar"]) && $error_titulo)
+                                if ($_POST["titulo"] == "")
+                                    echo "<span class='error'>* Campo vacío</span>";
+                                else
+                                    echo "<span class='error'>* Película repetida, seleccione otro título o director</span>"; ?>
+                        </p>
+                    </td>
+                    <td rowspan="3" class="texto-centrado">
+                        <p id="borrar-foto">
+                            <img src="Img/<?php echo $caratula; ?>" alt="Carátula" title="Carátula"><br /><br />
+                            <?php if ($caratula != "no_imagen.jpg") echo "<button type='submit' name='boton_borrar_caratula'>Borrar carátula</button>" ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>
+                            <label for="director" class="negrita">Director</label><br />
+                            <input type="text" name="director" id="director" maxlength="20" placeholder="Nombre del director" value="<?php echo $director; ?>" />
+                            <?php if (isset($_POST["boton_confirmar_editar"]) && $error_director)
+                                if ($_POST["director"] == "")
+                                    echo "<span class='error'>* Campo vacío</span>";
+                                else
+                                    echo "<span class='error'>* Película repetida, seleccione otro título o director</span>"; ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>
+                            <label for="tematica" class="negrita">Temática</label><br />
+                            <input type="text" name="tematica" id="tematica" maxlength="15" placeholder="Temática de la película" value="<?php echo $tematica; ?>" />
+                            <?php if (isset($_POST["boton_confirmar_editar"]) && $error_tematica)
+                                echo "<span class='error'>* Campo vacío</span>"; ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+
+
+
+
+
+
+
+
+
+
             <p>
                 <label for="sinopsis" class="negrita">Sinopsis</label><br />
-                <textarea name="sinopsis" id="sinopsis" cols="30" rows="10" placeholder="Sinopsis de la película"><?php if (isset($_POST["sinopsis"])) echo $_POST["sinopsis"]; ?></textarea>
-                <?php if (isset($_POST["sinopsis"]) && $error_sinopsis)
+                <textarea name="sinopsis" id="sinopsis" cols="30" rows="10" placeholder="Sinopsis de la película"><?php echo $sinopsis; ?></textarea>
+                <?php if (isset($_POST["boton_confirmar_editar"]) && $error_sinopsis)
                     echo "<span class='error'>* Campo vacío</span>"; ?>
             </p>
             <p>
@@ -106,19 +121,15 @@ if (isset($error_consistencia)) { //Si hay error de consistencia, lo muestra
                     if ($_FILES["caratula"]["error"])
                         echo "<span class='error'>* Error en la subida del archivo</span>";
                     elseif (!getimagesize($_FILES["caratula"]["tmp_name"]))
-                        "<span class='error'>* El archivo seleccionado no es una imagen</span>";
+                        echo "<span class='error'>* El archivo seleccionado no es una imagen</span>";
                     else
-                        "<span class='error'>* El tamaño no puede superar 1 MB</span>";
+                        echo "<span class='error'>* El tamaño no puede superar 1 MB</span>";
                 }
 
                 ?>
             </p>
 
-            <p>
 
-                <img src="Img/<?php echo $caratula; ?>" alt="Carátula" title="Carátula">
-                <button type="submit" name="boton_borrar_caratula" >Borrar carátula</button>
-            </p>
 
             <p>
                 <button type='sumbit'>Volver</button>
@@ -127,11 +138,10 @@ if (isset($error_consistencia)) { //Si hay error de consistencia, lo muestra
                 <input type="hidden" name="caratula" value="<?php echo $caratula; ?>">
             </p>
 
-            <p>
 
-            </p>
         </form>
     </div>
-
 <?php
+
+
 }

@@ -42,9 +42,9 @@
                 if ($_FILES["caratula"]["error"])
                     echo "<span class='error'>* Error en la subida del archivo</span>";
                 elseif (!getimagesize($_FILES["caratula"]["tmp_name"]))
-                    "<span class='error'>* El archivo seleccionado no es una imagen</span>";
+                    echo "<span class='error'>* El archivo seleccionado no es una imagen</span>";
                 else
-                    "<span class='error'>* El tamaño no puede superar 1 MB</span>";
+                    echo "<span class='error'>* El tamaño no puede superar 1 MB</span>";
             }
 
             ?>

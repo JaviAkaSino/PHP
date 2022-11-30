@@ -88,7 +88,99 @@ if (isset($_POST["boton_confirmar_nueva"])) {
 
 /***************** CONFIRMAR EDITAR PELÍCULA ****************/
 
+if (isset($_POST["boton_confirmar_editar"])) {
 
+    //ERRORES
+    $error_titulo = $_POST["titulo"] == "";
+    $error_director = $_POST["director"] == "";
+
+    //Si no estan vacíos, verificar que no existan ya 
+    if (!$error_titulo && !$error_director) {
+
+        $titulo_repetido = repetido($conexion, "peliculas", "titulo", $_POST["titulo"], "idPelicula", $_POST["idPelicula"]);
+        $director_repetido = repetido($conexion, "peliculas", "director", $_POST["director"], "idPelicula", $_POST["idPelicula"]);
+
+        $error_titulo = $titulo_repetido && $director_repetido;
+        $error_director = $titulo_repetido && $director_repetido;
+
+        if (is_string($error_titulo)) {
+
+            mysqli_close($conexion);
+            die(pag_error("Práctica 9", "Videoclub", $error_titulo));
+        }
+    }
+
+    $error_tematica = $_POST["tematica"] == "";
+    $error_sinopsis = $_POST["sinopsis"] == "";
+    $error_caratula = $_FILES["caratula"]["name"] != "" && ($_FILES["caratula"]["error"] || !getimagesize($_FILES["caratula"]["tmp_name"]) || $_FILES["caratula"]["size"] > 1000000);
+
+    $error_form = $error_titulo || $error_director || $error_tematica || $error_sinopsis || $error_caratula;
+
+    //EDITAMOS SIN CARATULA
+
+    if (!$error_form) {
+
+        $consulta = "UPDATE peliculas SET titulo ='" . $_POST["titulo"] . "', director='" . $_POST["director"] . "', tematica='" . $_POST["tematica"] . "', sinopsis ='" . $_POST["sinopsis"] . "' WHERE idPelicula='" . $_POST["idPelicula"] . "'";
+
+        try { //Intentamos la edicion
+
+            mysqli_query($conexion, $consulta);
+            $mensaje_accion = "Película editada con éxito";
+
+            if ($_FILES["caratula"]["name"] != "") { //Si hay caratula, intentamos moverla
+
+                $extension = "";
+                $arr_nombre = explode(".", $_FILES["caratula"]["name"]);
+                if (count($arr_nombre) > 1) //Si tiene extensión
+                    $extension = "." . strtolower(end($arr_nombre)); //La guardamos
+                $nueva_caratula = "img_" . $_POST["idPelicula"] . $extension;
+
+                @$var = move_uploaded_file($_FILES["caratula"]["tmp_name"], "Img/" . $nueva_caratula);
+                if ($var) {
+                    if ($nueva_caratula != $_POST["caratula"]) { //Si el nombre cambia
+                        try { //La editamos
+
+                            $consulta = "UPDATE peliculas SET caratula='" . $nueva_caratula . "'  WHERE idPelicula='" . $_POST["idPelicula"] . "'";
+                            mysqli_query($conexion, $consulta);
+
+                            if ($_POST["caratula"] != "no_imagen.jpg" && is_file("Img/" . $_POST['caratula'])) //Si existe la antigua
+                                unlink("Img/" . $_POST['caratula']); //La borramos
+                        } catch (Exception $e) {
+                            if (is_file("Img/" . $_POST['caratula'])) //Si existe la antigua
+                                unlink("Img/" . $_POST['caratula']); //La borramos
+                            $mensaje = "Imposible actualziar la carátula. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+                            mysqli_close($conexion);
+                            die(pag_error("Práctica 9", "Videoclub", $mensaje));
+                        }
+                    }
+                } else { //Si no se puede mover el archivo, cambia el mensaje de acción
+                    $mensaje_accion = "Película editada a falta de la carátula. No ha sido posible subir la imagen al servidor";
+                }
+            }
+        } catch (Exception $e) {
+            $mensaje = "Imposible editar la película. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+            mysqli_close($conexion);
+            die(pag_error("Práctica 9", "Videoclub", $mensaje));
+        }
+    }
+}
+
+/***************** CONFIRMAR BORRAR CARÁTULA ****************/
+
+if (isset($_POST["boton_confirmar_borrar_caratula"])) {
+
+    try {
+        $consulta = "UPDATE peliculas SET caratula='no_imagen.jpg' WHERE idPelicula = '" . $_POST["idPelicula"] . "'";
+        mysqli_query($conexion, $consulta);
+        if (is_file("Img/" . $_POST["boton_confirmar_borrar_caratula"]))
+            unlink("Img/" . $_POST["boton_confirmar_borrar_caratula"]);
+    } catch (Exception $e) {
+
+        $mensaje = "Imposible borrar esta carátula. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+        mysqli_close($conexion);
+        die(pag_error("Práctica 9", "Videoclub", $mensaje));
+    }
+}
 
 /***************** CONFIRMAR BORRAR PELÍCULA ****************/
 
@@ -123,18 +215,19 @@ if (isset($_POST["boton_confirmar_borrar"])) {
         }
 
         table {
-            text-align: center;
+
             width: 80%;
             font-size: large;
         }
 
-        table,
-        td,
-        th,
-        tr {
+        table#principal,
+        table#principal td,
+        table#principal th,
+        table#principal tr {
             border-collapse: collapse;
             border: 1px solid black;
             padding: 1rem;
+            text-align: center;
         }
 
         th {
@@ -173,6 +266,15 @@ if (isset($_POST["boton_confirmar_borrar"])) {
         .negrita {
             font-weight: 800;
         }
+
+        .texto-centrado {
+            text-align: center;
+        }
+
+        .error {
+            color: orange;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -204,12 +306,19 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
     if (
         isset($_POST["boton_editar"]) || (isset($_POST["boton_confirmar_editar"]) && $error_form)
-        || isset($_POST["boton_borrar_caratula"]) || isset($_POST["boton_confirmar_borrar_caratula"])
-        || isset($_POST["boton_volver_borrar_caratula"])
+        || isset($_POST["boton_confirmar_borrar_caratula"]) || isset($_POST["boton_volver_borrar_caratula"])
     ) {
 
         require "vistas/editar.php";
     }
+
+    /***************** BORRAR CARÁTULA ****************/
+
+    if (isset($_POST["boton_borrar_caratula"])) {
+
+        require "vistas/borrar_caratula.php";
+    }
+
 
     /***************** BORRAR PELÍCULA ****************/
 
