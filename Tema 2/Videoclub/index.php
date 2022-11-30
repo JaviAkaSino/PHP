@@ -275,6 +275,13 @@ if (isset($_POST["boton_confirmar_borrar"])) {
             color: orange;
             font-weight: bold;
         }
+
+        #accion{
+
+            color:orange;
+            font-weight: bold;
+            font-size: x-large;
+        }
     </style>
 </head>
 
@@ -328,7 +335,7 @@ if (isset($_POST["boton_confirmar_borrar"])) {
     }
 
     if (isset($mensaje_accion)) {
-        echo "<p class='centrar'>" . $mensaje_accion . "</p>";
+        echo "<p class='centrar' id='accion'>" . $mensaje_accion . "</p>";
     }
     mysqli_close($conexion);
     ?>
