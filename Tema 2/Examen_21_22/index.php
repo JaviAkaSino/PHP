@@ -10,13 +10,20 @@
         table {
             text-align: center;
             border-collapse: collapse;
+            width:80%;
+            margin: auto;
         }
 
         table,
         td,
         th {
-            padding: 0.5rem 0.2rem;
             border: 1px solid black;
+            padding:0.75rem;
+        }
+
+        th, td{
+            width:16.6667%;
+            
         }
 
         th {
