@@ -15,15 +15,41 @@ if (!isset($_SESSION["pos_y"]))
     <meta charset="UTF-8">
     <title>Sesiones - Ejercicio 4</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         div#todo {
             display: flex;
-            flex-flow: column;
+            flex-flow: row;
+            justify-content: space-around;
             align-items: center;
         }
 
-        p#manos>button {
-            font-size: 60px;
-            line-height: 40px;
+        div#manos {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
+            align-items: center;
+            height: 250px;
+            width: 250px;
+        }
+
+        div#manos>div {
+            flex: 30%;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            height: 70px;
+        }
+
+        div#manos>div>button {
+            height: 70px;
+            width: 70px;
+        }
+
+        div#manos>div.solo {
+            flex: 100%
         }
 
         svg {
@@ -36,22 +62,28 @@ if (!isset($_SESSION["pos_y"]))
     <h2>MOVER UN PUNTO A DERECHA E IZQUIERDA</h2>
     <form action="ej05_02.php" method="post">
         <p>Haga click en los botones para mover el punto:</p>
-        <p>
-            <?php
-            if (isset($_SESSION["error"])) {
-                echo "<span class='error'>" . $_SESSION["error"] . "</span>";
-                unset($_SESSION["error"]);
-            }
-            ?>
-        </p>
+
         <div id="todo">
 
-            <p id="manos">
-                <button type="submit" name="accion" value="arriba">&#x261D;</button>
-                <button type="submit" name="accion" value="izquierda">&#x261C;</button>
-                <button type="submit" name="accion" value="derecha">&#x261E;</button>
-                <button type="submit" name="accion" value="abajo">&#x261F;</button>
-            </p>
+            <div id="manos">
+                <div class="solo">
+                    <button type="submit" name="accion" value="arriba">&#x1F446;</button>
+                </div>
+                <div>
+                    <button type="submit" name="accion" value="izquierda">&#x1F448;</button>
+                </div>
+                <div>
+                    <button type="submit" name="boton_reset" id="volver">Volver al centro</button>
+                </div>
+                <div>
+                    <button type="submit" name="accion" value="derecha">&#x1F449;</button>
+                </div>
+                <div class="solo">
+                    <button type="submit" name="accion" value="abajo">&#x1F447;</button>
+                </div>
+            </div>
+
+
             <p>
                 <svg version="1.1" xmlns=http://www.w3.org/2000/svg width="400px" height="400px" viewbox="-200 -200 400 400">
                     <circle cx="<?php echo $_SESSION["pos_x"] ?>" cy="<?php echo $_SESSION["pos_y"] ?>" r="8" fill="red" />
@@ -60,9 +92,6 @@ if (!isset($_SESSION["pos_y"]))
 
         </div>
 
-        <p>
-            <button type="submit" name="boton_reset">Volver al centro</button>
-        </p>
     </form>
 </body>
 

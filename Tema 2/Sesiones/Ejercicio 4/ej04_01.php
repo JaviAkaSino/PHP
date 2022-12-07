@@ -29,14 +29,7 @@ if (!isset($_SESSION["pos_x"]))
     <h2>MOVER UN PUNTO A DERECHA E IZQUIERDA</h2>
     <form action="ej04_02.php" method="post">
         <p>Haga click en los botones para mover el punto:</p>
-        <p>
-            <?php
-            if (isset($_SESSION["error"])) {
-                echo "<span class='error'>" . $_SESSION["error"] . "</span>";
-                unset($_SESSION["error"]);
-            }
-            ?>
-        </p>
+
         <div id="todo">
 
             <p id="manos">
