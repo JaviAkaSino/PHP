@@ -14,11 +14,17 @@ if (!isset($_SESSION["pos_naranja"]))
     <meta charset="UTF-8">
     <title>Sesiones - Ejercicio 6</title>
     <style>
-   
-
-        button{
-            height: 20px;
+        button {
+            height: 35px;
             width: auto;
+        }
+
+        #azul {
+            color: skyblue
+        }
+
+        #naranja {
+            color: orange
         }
     </style>
 </head>
@@ -31,13 +37,13 @@ if (!isset($_SESSION["pos_naranja"]))
         <div id="todo">
 
             <p>
-                <button type="submit" name="accion" value="azul">&#x261C;</button>
+                <button id="azul" type="submit" name="accion" value="azul">&#x2714;</button>
                 <svg version="1.1" xmlns=http://www.w3.org/2000/svg width="<?php echo $_SESSION["pos_azul"] ?>px" height="20px">
-                    <line x1="-300" y1="10" x2="300" y2="10" stroke="blue" stroke-width="20" />
+                    <line x1="-300" y1="10" x2="300" y2="10" stroke="skyblue" stroke-width="20" />
                 </svg>
-                <br/>
-                <br/>
-                <button type="submit" name="accion" value="naranja">&#x261E;</button>
+                <br />
+                <br />
+                <button id="naranja" type="submit" name="accion" value="naranja">&#x2714;</button>
 
                 <svg version="1.1" xmlns=http://www.w3.org/2000/svg width="<?php echo $_SESSION["pos_naranja"] ?>px" height="20px">
                     <line x1="-300" y1="10" x2="300" y2="10" stroke="orange" stroke-width="20" />
