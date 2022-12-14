@@ -26,5 +26,10 @@ if(isset($_POST["btnSalir"]))
             <button class='enlace' name='btnSalir'>Salir</button> 
         </form>
     </div>
+
+
+    <h2>VISTA ADMIN</h2>
+
+
 </body>
 </html>

@@ -20,7 +20,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
             mysqli_set_charset($conexion, "utf8");
         } catch (Exception $e) {
 
-            die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", "Imposible conectar. Error Nº " .
+            die(error_page("Prácitca 1º CRUD", "Nuevo Usuario", "Imposible conectar. Error Nº " .
                 mysqli_connect_errno() . ": " . mysqli_connect_error()));
         }
 
@@ -31,7 +31,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
             if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
 
                 mysqli_close($conexion);
-                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
+                die(error_page("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
             }
         }
 
@@ -42,7 +42,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
             if (is_string($error_email)) {
 
                 mysqli_close($conexion);
-                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_email));
+                die(error_page("Prácitca 1º CRUD", "Nuevo Usuario", $error_email));
             }
         }
 
@@ -68,7 +68,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
 
                 $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
                 mysqli_close($conexion);
-                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $mensaje));
+                die(error_page("Prácitca 1º CRUD", "Nuevo Usuario", $mensaje));
             }
         }
     }

@@ -1,8 +1,8 @@
 <?php
 if(isset($_POST["btnLogin"]))
 {
-    $error_usuario=$_POST["usuario"]=="";
-    $error_clave= $_POST["clave"]=="";
+    $error_usuario=$_POST["usuario_log"]=="";
+    $error_clave= $_POST["clave_log"]=="";
     $error_form_login= $error_usuario|| $error_clave;
     if(!$error_form_login)
     {
@@ -21,7 +21,7 @@ if(isset($_POST["btnLogin"]))
 
         try
         {
-            $consulta="select * from usuarios where usuario='".$_POST["usuario"]."' and clave='".md5($_POST["clave"])."'";
+            $consulta="select * from usuarios where usuario='".$_POST["usuario_log"]."' and clave='".md5($_POST["clave_log"])."'";
             $resultado=mysqli_query($conexion,$consulta);
             $registrado=mysqli_num_rows($resultado)>0;
 
@@ -29,8 +29,8 @@ if(isset($_POST["btnLogin"]))
             mysqli_close($conexion);
             if($registrado)
             {
-                $_SESSION["usuario"]=$_POST["usuario"];
-                $_SESSION["clave"]=md5($_POST["clave"]);
+                $_SESSION["usuario"]=$_POST["usuario_log"];
+                $_SESSION["clave"]=md5($_POST["clave_log"]);
                 $_SESSION["ultimo_acceso"]=time();
                 header("Location:index.php");
                 exit;
@@ -79,19 +79,19 @@ if(isset($_POST["btnLogin"]))
     ?>  
     <form action="index.php" method="post">
         <p>
-            <label for="usuario">Usuario:</label>
-            <input type="text" name="usuario" id="usuario" value="<?php if(isset($_POST["usuario"])) echo $_POST["usuario"];?>"/>
+            <label for="usuario_log">Usuario:</label>
+            <input type="text" name="usuario_log" id="usuario_log" value="<?php if(isset($_POST["usuario"])) echo $_POST["usuario"];?>"/>
             <?php 
             if(isset($_POST["btnLogin"]) && $error_usuario)
-                if($_POST["usuario"]=="")
+                if($_POST["usuario_log"]=="")
                     echo "<span class='error'>* Campo vacío *</span>";
                 else
                     echo "<span class='error'>* Usuario no se encuentra registrado en BD *</span>";
             ?>
         </p>
         <p>
-            <label for="clave">Contraseña:</label>
-            <input type="password" name="clave" id="clave"/>
+            <label for="clave_log">Contraseña:</label>
+            <input type="password" name="clave_log" id="clave_log"/>
             <?php 
             if(isset($_POST["btnLogin"]) && $error_clave)
                 echo "<span class='error'>* Campo vacío *</span>";
