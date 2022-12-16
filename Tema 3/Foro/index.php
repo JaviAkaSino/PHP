@@ -5,7 +5,7 @@ define("MINUTOS", 10);
 
 session_name("primer_login_22_33");
 session_start();
-
+//Estas 3 variables existen cuando me he logeado, si no, no cumples ninguna
 if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && (isset($_SESSION["ultimo_acceso"]))) {
 
     require "src/seguridad.php";
@@ -18,7 +18,8 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && (isset($_SESSION
         require "vistas/vista_admin.php";
 
     mysqli_close($conexion);
-} elseif (isset($_POST["btnRegistro"]) || isset($_POST["boton_continuar"])) {
+
+} elseif (isset($_POST["btnRegistro"]) || isset($_POST["boton_continuar_registrar"])) {
 
     require "vistas/vista_registro.php";
 

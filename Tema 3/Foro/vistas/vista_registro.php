@@ -4,7 +4,7 @@ if (isset($_POST["boton_volver"])) {
     exit();
 }
 
-if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores normales
+if (isset($_POST["boton_continuar_registrar"])) { //Al pulsar botón, revisamos errores normales
 
     $error_nombre = $_POST["nombre"] == "";
     $error_usuario = $_POST["usuario"] == "";
@@ -96,7 +96,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
         <p>
             <label for="usuario">Usuario:</label>
             <input type="text" name="usuario" id="usuario" maxlength="20" value="<?php if (isset($_POST["usuario"])) echo $_POST["usuario"] ?>">
-            <?php if (isset($_POST["boton_continuar"]) && $error_usuario) {
+            <?php if (isset($_POST["boton_continuar_registrar"]) && $error_usuario) {
                 if ($_POST["usuario"] == "")
                     echo "<span class='error'> Campo vacío </span>";
                 else
@@ -106,7 +106,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
         <p>
             <label for="clave">Contraseña:</label>
             <input type="password" name="clave" id="clave" maxlength="20" value="">
-            <?php if (isset($_POST["boton_continuar"]) && $error_clave) echo "<span class='error'> Campo vacío </span>" ?>
+            <?php if (isset($_POST["boton_continuar_registrar"]) && $error_clave) echo "<span class='error'> Campo vacío </span>" ?>
         </p>
 
         <p>
@@ -126,7 +126,7 @@ if (isset($_POST["boton_continuar"])) { //Al pulsar botón, revisamos errores no
         </p>
         <p>
             <button type="submit" name="boton_volver">Volver</button>
-            <button type="submit" name="boton_continuar">Continuar</button>
+            <button type="submit" name="boton_continuar_registrar">Continuar</button>
         </p>
     </form>
 </body>

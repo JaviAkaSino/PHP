@@ -7,9 +7,74 @@ if (isset($_POST["btnSalir"])) {
 }
 
 
-if (isset($_POST["boton_confirmar_nuevo"])){
+if (isset($_POST["boton_confirmar_nuevo"])) {
 
-    
+    $error_nombre = $_POST["nombre"] == "";
+    $error_usuario = $_POST["usuario"] == "";
+    $error_clave = $_POST["clave"] == "";
+    $error_email = $_POST["email"] == "" || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
+
+    if (!$error_usuario) {
+
+        $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"]);
+
+        if (is_string($error_usuario)) {
+            session_destroy();
+            mysqli_close($conexion);
+            die(error_page("Primer CRUD", "Primer CRUD", $error_usuario));
+        }
+    }
+
+    if (!$error_email) {
+
+        $error_email = repetido($conexion, "usuarios", "email", $_POST["email"]);
+
+        if (is_string($error_email)) {
+            session_destroy();
+            mysqli_close($conexion);
+            die(error_page("Primer CRUD", "Primer CRUD", $error_email));
+        }
+    }
+
+    $error_form = $error_nombre || $error_usuario || $error_clave || $error_email;
+
+
+    if (!$error_form) {
+
+        try {
+            $consulta = "INSERT INTO usuarios (nombre, usuario, clave, email) 
+                VALUES ( '" . $_POST["nombre"] . "', '" . $_POST["usuario"] . "', '" . md5($_POST["clave"]) . "', '" . $_POST["email"] . "')";
+            mysqli_query($conexion, $consulta);
+
+            $_SESSION["mensaje_accion"] = "Usuario registrado con éxito";
+            mysqli_close($conexion);
+            header("Location:index.php");
+            exit;
+        } catch (Exception $e) {
+            $mensaje = "Imposible realizar la inserción. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+            session_destroy();
+            mysqli_close($conexion);
+            die(error_page("Primer CRUD", "Primer CRUD", $mensaje));
+        }
+    }
+}
+
+
+if(isset($_POST["boton_confirmar_borrar"])){
+
+    try {
+        $consulta = "DELETE FROM usuarios WHERE id_usuario = '".$_POST["boton_confirmar_borrar"]."'";
+        mysqli_query($conexion, $consulta);
+        $_SESSION["mensaje_accion"] = "Usuario borrado con éxito";
+        mysqli_close($conexion);
+        header("Location:index.php");
+        exit;
+    } catch (Exception $e) {
+        $mensaje = "Imposible borrar el usuario. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+        session_destroy();
+        mysqli_close($conexion);
+        die(error_page("Primer CRUD", "Primer CRUD", $mensaje));
+    }
 }
 
 ?>
@@ -188,8 +253,16 @@ if (isset($_POST["boton_confirmar_nuevo"])){
             <p>
                 <label for="email">E-mail: </label>
                 <input type="text" id="email" name="email" value="<?php if (isset($_POST["email"])) echo $_POST["email"]; ?>">
-                <?php if (isset($_POST["email"]) && $error_email)
-                    echo "<span class='error'>* Campo vacío * </span>"; ?>
+                <?php if (isset($_POST["email"]) && $error_email) {
+
+                    if ($_POST["email"] == "")
+                        echo "<span class='error'>* Campo vacío * </span>";
+                    else if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
+                        echo "<span class='error'>* Formato de e-mail no válido * </span>";
+                    else
+                        echo "<span class='error'>* E-mail ya existente * </span>";
+                }
+                ?>
             </p>
 
             <p>
@@ -204,6 +277,13 @@ if (isset($_POST["boton_confirmar_nuevo"])){
     }
 
     if (isset($_POST["boton_borrar"])) {
+
+        echo "<h3>Borrar usuario</h3>";
+        echo "<p>¿Desea borrar el usuario ".$_POST["boton_borrar"]."?</p>";
+        echo "<form action='index.php' method='post'>
+                <button type='submit'>Atras</button>
+                <button type='submit' name='boton_confirmar_borrar' value='".$_POST["boton_borrar"]."'>Confirmar</button>
+            </form>";
     }
 
 
