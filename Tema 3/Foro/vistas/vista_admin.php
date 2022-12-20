@@ -6,7 +6,7 @@ if (isset($_POST["btnSalir"])) {
     exit;
 }
 
-
+/*************************************CONFIRMA NUEVO***********************************/
 if (isset($_POST["boton_confirmar_nuevo"])) {
 
     $error_nombre = $_POST["nombre"] == "";
@@ -61,6 +61,76 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
     }
 }
 
+
+/********************************** CONFIRMAR EDITAR ******************************/
+
+if (isset($_POST["boton_confirma_editar"])) { //Al pulsar botón, revisamos errores normales
+
+    $error_nombre = $_POST["nombre"] == "";
+    $error_usuario = $_POST["usuario"] == "";
+    $error_email = $_POST["email"] == "" || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
+    $error_form = $error_nombre || $error_usuario || $error_email;
+
+    if (!$error_usuario || !$error_email) { //Si ya están rellenos, mirar si están repetidos
+
+        try { //Try catch de la conexión
+
+            $conexion = mysqli_connect(SERVIDOR_BD, USUARIO_BD, CLAVE_BD, NOMBRE_BD);
+            mysqli_set_charset($conexion, "utf8");
+        } catch (Exception $e) {
+
+            die(pag_error("Prácitca 1º CRUD", "Editar usuario", "Imposible conectar. Error Nº " .
+                mysqli_connect_errno() . ": " . mysqli_connect_error()));
+        }
+
+        if (!$error_usuario) { //SI USUARIO YA ESTÁ RELLENO
+
+            $error_usuario = repetido($conexion, "usuarios", "usuario", $_POST["usuario"], "id_usuario", $_POST["boton_confirma_editar"]); //Error si repetido
+
+            if (is_string($error_usuario)) { //Si se obtiene un mensaje de error, se enseña
+
+                mysqli_close($conexion);
+                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_usuario));
+            }
+        }
+
+        if (!$error_email) { // IGUAL PARA EMAIL
+
+            $error_email = repetido($conexion, "usuarios", "email", $_POST["email"], "id_usuario", $_POST["boton_confirma_editar"]);
+
+            if (is_string($error_email)) {
+
+                mysqli_close($conexion);
+                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $error_email));
+            }
+        }
+
+
+        $error_form = $error_nombre || $error_usuario || $error_email;
+
+        if (!$error_form) {
+
+            if ($_POST["clave"] == "") //Si no se ha metido clave nueva
+                $consulta = "UPDATE usuarios SET nombre='" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', email = '" . $_POST["email"] . "' WHERE id_usuario = '" . $_POST["boton_confirma_editar"] . "'";
+            else
+                $consulta = "UPDATE usuarios SET nombre='" . $_POST["nombre"] . "', usuario = '" . $_POST["usuario"] . "', clave ='" . md5($_POST["clave"]) . "',email = '" . $_POST["email"] . "' WHERE id_usuario = '" . $_POST["boton_confirma_editar"] . "'";
+
+            try {
+
+                mysqli_query($conexion, $consulta);
+                $_SESSION["mensaje_accion"] = "Usuario editado con éxito";
+            } catch (Exception $e) {
+
+                $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
+                mysqli_close($conexion);
+                die(pag_error("Prácitca 1º CRUD", "Nuevo Usuario", $mensaje));
+            }
+        }
+    }
+}
+
+
+/********************************** CONFIRMAR BORRAR ******************************/
 
 if (isset($_POST["boton_confirmar_borrar"])) {
 
@@ -123,8 +193,8 @@ if (isset($_POST["boton_confirmar_borrar"])) {
             margin: 1rem auto;
         }
 
-        .centrar-texto{
-            text-align:center;
+        .centrar-texto {
+            text-align: center;
         }
 
         .flexible {
@@ -175,7 +245,7 @@ if (isset($_POST["boton_confirmar_borrar"])) {
         <div>
             <label for="regs_x_pag">Registros a mostrar:</label>
             <select name="regs_x_pag" id="regs_x_pag" onchange="document.getElementById('boton_buscar').click();">
-                <option value="2" <?php if ($_SESSION["regs_x_pag"] == 3) echo "selected" ?>>2</option>
+                <option value="2" <?php if ($_SESSION["regs_x_pag"] == 2) echo "selected" ?>>2</option>
                 <option value="4" <?php if ($_SESSION["regs_x_pag"] == 4) echo "selected" ?>>4</option>
                 <option value="-1" <?php if ($_SESSION["regs_x_pag"] == -1) echo "selected" ?>>ALL</option>
             </select>
@@ -307,36 +377,7 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
     if (isset($_POST["boton_listar"])) {
 
-        try {
-
-            $consulta = "SELECT * FROM usuarios WHERE id_usuario = '" . $_POST["boton_listar"] . "'";
-            $resultado = mysqli_query($conexion, $consulta);
-
-            echo "<div class='centrar'>";
-            if (mysqli_num_rows($resultado) > 0) { //Si el usuario sigue existiendo
-
-                $tupla = mysqli_fetch_assoc($resultado);
-
-                echo "<h3>Datos del usuario " . $_POST["boton_listar"] . "</h3>";
-                echo "<p><strong>Nombre: </strong>" . $tupla["nombre"] . "</p>";
-                echo "<p><strong>Usuario: </strong>" . $tupla["usuario"] . "</p>";
-                echo "<p><strong>E-mail: </strong>" . $tupla["email"] . "</p>";
-                echo "<form action='index.php' method='post'><button type='submit'>Atrás</button></form>";
-            } else { //Si el usuario se borra durante
-
-                echo "<p class ='error'>Error de consistencia. El usuario seleccionado ya no existe</p>";
-            }
-
-            echo "</div>";
-
-            mysqli_free_result($resultado);
-        } catch (Exception $e) {
-
-            $mensaje = "Imposible realizar la consulta. Error Nº " . mysqli_errno($conexion) . ": " . mysqli_error($conexion);
-            mysqli_close($conexion);
-            session_destroy();
-            die($mensaje);
-        }
+        require "admin/vista_listar.php";
     }
 
 
@@ -344,70 +385,21 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
     if (isset($_POST["boton_nuevo"]) || isset($_POST["boton_confirmar_nuevo"])) {
 
-    ?>
-        <h3>Nuevo usuario</h3>
-        <form action="index.php" method="post">
-            <p>
-                <label for="nombre">Nombre: </label>
-                <input type="text" id="nombre" name="nombre" value="<?php if (isset($_POST["nombre"])) echo $_POST["nombre"]; ?>">
-                <?php if (isset($_POST["nombre"]) && $error_nombre)
-                    echo "<span class='error'>* Campo vacío * </span>"; ?>
-            </p>
-
-            <p>
-                <label for="usuario">Usuario: </label>
-                <input type="text" id="usuario" name="usuario" value="<?php if (isset($_POST["usuario"])) echo $_POST["usuario"]; ?>">
-                <?php if (isset($_POST["usuario"]) && $error_usuario) {
-
-                    if ($_POST["usuario"] == "")
-                        echo "<span class='error'>* Campo vacío * </span>";
-                    else
-                        echo "<span class='error'>* Usuario ya existente * </span>";
-                }
-                ?>
-            </p>
-
-            <p>
-                <label for="clave">Contraseña: </label>
-                <input type="password" id="clave" name="clave" value="<?php if (isset($_POST["clave"])) echo $_POST["clave"]; ?>">
-                <?php if (isset($_POST["clave"]) && $error_clave)
-                    echo "<span class='error'>* Campo vacío * </span>"; ?>
-            </p>
-
-            <p>
-                <label for="email">E-mail: </label>
-                <input type="text" id="email" name="email" value="<?php if (isset($_POST["email"])) echo $_POST["email"]; ?>">
-                <?php if (isset($_POST["email"]) && $error_email) {
-
-                    if ($_POST["email"] == "")
-                        echo "<span class='error'>* Campo vacío * </span>";
-                    else if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL))
-                        echo "<span class='error'>* Formato de e-mail no válido * </span>";
-                    else
-                        echo "<span class='error'>* E-mail ya existente * </span>";
-                }
-                ?>
-            </p>
-
-            <p>
-                <button type="submit">Atrás</button>
-                <button type="submit" name="boton_confirmar_nuevo">Continuar</button>
-            </p>
-        </form>
-    <?php
+        require "admin/vista_nuevo.php";
     }
 
-    if (isset($_POST["boton_editar"])) {
+    /************  EDITAR USUARIO  ***************/
+
+    if (isset($_POST["boton_editar"]) || isset($_POST["boton_confirma_editar"]) && $error_form) {
+
+        require "admin/vista_editar.php";
     }
+
+    /************  BORRAR USUARIO  ***************/
 
     if (isset($_POST["boton_borrar"])) {
 
-        echo "<h3 class='centrar'>Borrar usuario</h3>";
-        echo "<p class='centrar'>¿Desea borrar el usuario " . $_POST["boton_borrar"] . "?</p>";
-        echo "<form class='centrar' action='index.php' method='post'>
-                <button type='submit'>Atras</button>
-                <button type='submit' name='boton_confirmar_borrar' value='" . $_POST["boton_borrar"] . "'>Confirmar</button>
-            </form>";
+        require "admin/vista_borrar.php";
     }
 
 

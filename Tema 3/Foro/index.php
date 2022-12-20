@@ -18,11 +18,9 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && (isset($_SESSION
         require "vistas/vista_admin.php";
 
     mysqli_close($conexion);
-
 } elseif (isset($_POST["btnRegistro"]) || isset($_POST["boton_continuar_registrar"])) {
 
     require "vistas/vista_registro.php";
-
 } else {
 
     require "vistas/vista_login.php";
