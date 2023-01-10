@@ -10,9 +10,10 @@
     <?php
         require "class_pelicula.php";
 
-        $peli = new Pelicula("Enola Holmes 2", 2022, "Harry Bradbeer", 5, true, "2023/01/08");
-
-        $peli->imprimir();
+        $peli1 = new Pelicula("Enola Holmes", 2020, "Harry Bradbeer", 3.5, true, "2023/01/08");
+        $peli1->imprimir();
+        $peli2 = new Pelicula("Enola Holmes 2", 2022, "Harry Bradbeer", 5, false, null);
+        $peli2->imprimir();
     ?>
 </body>
 </html>

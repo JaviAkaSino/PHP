@@ -10,6 +10,7 @@ class Pelicula
     private $alquilada;
     private $fecha;
 
+    private static $contador=0;
     const RECARGO_DIA = 1.2;
 
     public function __construct($nombre, $anio, $director, $precio, $alquilada, $fecha)
@@ -20,12 +21,24 @@ class Pelicula
         $this->setPrecio($precio);
         $this->setAlquilada($alquilada);
         $this->setFecha($fecha);
+        self::$contador++;
     }
 
     //IMPRIMIR
     public function imprimir(){
 
-        echo "<h2>".$this->getNombre()."</h2>";
+        echo "<h2>Película ".self::$contador."</h2>";
+        echo "<p><strong>Título: </strong>".$this->getNombre()."</p>";
+        echo "<p><strong>Director: </strong>".$this->getDirector()."</p>"; 
+        echo "<p><strong>Año: </strong>".$this->getAnio()."</p>"; 
+        echo "<p><strong>Precio de alquiler: </strong>".$this->getPrecio()." €</p>"; 
+        
+        if($this->getAlquilada()){
+            echo "<p><strong>Alquilada</strong></p>";
+            echo "<p><strong>Fecha de devolución: </strong>".date("d/m/Y", strtotime($this->getFecha()))."</p>";
+        } else {
+            echo "<p><strong>Disponible</strong></p>";
+        }
     }
 
     //RECARGO
