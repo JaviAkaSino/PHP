@@ -10,7 +10,9 @@
     <?php
         require "class_pelicula.php";
 
-        
+        $peli = new Pelicula("Enola Holmes 2", 2022, "Harry Bradbeer", 5, true, "2023/01/08");
+
+        $peli->imprimir();
     ?>
 </body>
 </html>
