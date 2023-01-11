@@ -219,7 +219,7 @@ if (isset($_POST["boton_confirmar_borrar"])) {
     <?php
     //PAGINACIÓN
     if (!isset($_SESSION["regs_x_pag"])) {
-        $_SESSION["regs_x_pag"] = 1;
+        $_SESSION["regs_x_pag"] = 2;
         $_SESSION["buscar"] = "";
     }
 
