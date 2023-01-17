@@ -1,13 +1,10 @@
 <?php
 require "src/config_bd.php";
+require "src/functions.php";
 
-if (isset($_POST["boton_login"])) {
-
-    $error_usuario = $_POST["usuario"] == "";
-    $error_clave = $_POST["clave"] == "";
-
-    $error_form = $error_usuario || $error_clave;
-}
+//Abrimos la sesión del login
+session_name("Blog");
+session_start();
 
 ?>
 
@@ -23,31 +20,43 @@ if (isset($_POST["boton_login"])) {
 
 <body>
     <h1>Blog Personal</h1>
-    <form action="index.php" method="post">
-        <p>
-            <label for="usuario">Nombre de usuario: </label>
-            <input type="text" id="usuario" name="usuario" value="<?php if (isset($_POST["usuario"])) echo $_POST["usuario"] ?>">
-            <?php
-            if (isset($_POST["usuario"]) && $error_usuario)
-                echo "<span class='error'> *Campo vacío</span>";
-            ?>
-        </p>
 
-        <p><label for="clave">Clave: </label>
-            <input type="password" id="clave" name="clave">
-            <?php
-            if (isset($_POST["clave"]) && $error_clave)
-                echo "<span class='error'> *Campo vacío</span>";
-            ?>
-        </p>
+    <?php 
+    //Si la sesión está iniciada
+        if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION["ultimo acceso"])){
 
-        <p>
-            <button type="submit" name="boton_login">Entrar</button>
-            <button type="submit" formaction="registro_usuario.php">Registarse</button>
-        </p>
-    </form>
+            //Comprueba la seguridad
+            define("MINUTOS", 5); //Define el tiempo
 
-    <?php
+            try { //Conexión
+
+                $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+            } catch (PDOException $e) {
+        
+                $mensaje_error = "<p>Imposible realizar la conexión. Error: " . $e->getMessage() . "</p></body></html>";
+                die($mensaje_error);
+            }
+
+            
+            try {
+                $consulta = "SELECT * FROM usuarios WHERE usuario = ? AND clave = ?";
+                $sentencia = $conexion->prepare($consulta); //Prepara la consulta
+                $datos[] = $_SESSION["usuario"];
+                $datos[] = $_SESSION["clave"];
+            } catch (PDOException $e) {
+                $sentencia = null;
+                $conexion = null;
+                echo "<p>No se ha podido realizar la consulta. Error: ".$e->getMessage()."</p>"; 
+            }
+
+
+
+        } else { //Si no está logueado, LOGIN
+
+            require "vistas/login.php";
+        }
+
+    //NOTICIAS
 
     //CONEXION
 
@@ -69,7 +78,7 @@ if (isset($_POST["boton_login"])) {
             $consulta = "SELECT * FROM noticias 
                 JOIN usuarios ON noticias.idUsuario = usuarios.idUsuario
                 JOIN categorias ON noticias.idCategoria = categorias.idCategoria
-                WHERE idNoticia = ?";
+                WHERE noticias.idNoticia = ?";
 
             $sentencia = $conexion->prepare($consulta); //Prepara la consulta
 
@@ -79,8 +88,43 @@ if (isset($_POST["boton_login"])) {
             if ($sentencia->rowCount() > 0) { //Controla que siga existiendo
                 $tupla = $sentencia->fetch(PDO::FETCH_ASSOC);
                 echo "<h3>" . $tupla["titulo"] . "</h3>";
-                echo "<p>Publicado por <strong>" . $tupla["usuario"] . "</strong> en <em>" . strtoupper($tupla["valor"] ). "</em></p>";
-                echo "<p>".$tupla["cuerpo"]."</p>";
+                echo "<p>Publicado por <strong>" . $tupla["usuario"] . "</strong> en <em>" . strtoupper($tupla["valor"]) . "</em></p>";
+                echo "<p>" . $tupla["cuerpo"] . "</p>";
+
+                $sentencia = null; //Libera la consulta ????????
+                $tupla = null;
+
+                echo "<h3>Comentarios</h3>";
+
+                try {
+                    $consulta = "SELECT * FROM comentarios
+                        JOIN usuarios ON comentarios.idUsuario=usuarios.idUsuario
+                        WHERE idNoticia = ? AND estado = ?";
+
+                    $sentencia = $conexion->prepare($consulta); //Prepara la consulta
+                    $datos[] = "apto"; //El idNoticia ya está en datos
+                    $sentencia->execute($datos); //Ejecuta
+
+                    if ($sentencia->rowCount() > 0) { //Si hay comentarios
+
+                        $respuesta = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($respuesta as $tupla) {
+
+                            echo "<p><strong>" . $tupla["usuario"] . "</strong> dijo:<br/>" . $tupla["comentario"] . "</p>";
+                        }
+
+                        $sentencia = null;  //?????????????????
+                        $respuesta = null;
+                    } else { //Si no hay comentarios
+
+                        echo "<p>No hay comentarios para esta noticia. ¡Sé tu el primero!</p>";
+                    }
+                } catch (PDOException $e) {
+                    $conexion = null;
+                    $sentencia = null;
+                    echo "<p>No han podido cargarse los comentarios Error: " . $e->getMessage() . "</p>";
+                }
             } else {
                 echo "<p>La noticia ya no está en la BD</p>";
             }

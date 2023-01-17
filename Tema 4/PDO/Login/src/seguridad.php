@@ -5,7 +5,6 @@ define("MINUTOS", 5);
 try {
     $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
 } catch (Exception $e) {
-
     die(error_page("Login con PDO", "Login con PDO", "Imposible conectar. Error: " . $e->getMessage()));
 }
 
@@ -44,4 +43,4 @@ if ((time() - $_SESSION["ultimo_acceso"]) > 60 * MINUTOS) { //Si se excede el ti
     exit;
 }
 
-$_SESSION["ultimo_acceso"] = time();
+$_SESSION["ultimo_acceso"] = time(); //Actualiza el último acceso

@@ -26,7 +26,7 @@ if (isset($_POST["boton_registro"])){
             <label for="usuario">Nombre de usuario: </label>
             <input type="text" id="usuario" name="usuario" value="<?php if (isset($_POST["usuario"])) echo $_POST["usuario"] ?>">
             <?php
-            if (isset($_POST["usuario"]) && $error_usuario)
+            if (isset($_POST["boton_registro"]) && $error_usuario)
                 echo "<span class='error'> *Campo vacío</span>";
             ?>
         </p>
@@ -34,13 +34,13 @@ if (isset($_POST["boton_registro"])){
         <p><label for="clave">Clave: </label>
             <input type="password" id="clave" name="clave">
             <?php
-            if (isset($_POST["clave"]) && $error_clave)
+            if (isset($_POST["boton_registro"]) && $error_clave)
                 echo "<span class='error'> *Campo vacío</span>";
             ?>
         </p>
 
         <p>
-            <button type="submit" name="boton_volver">Volver</button>
+            <button type="submit" formaction="index.php">Volver</button>
             <button type="submit" name="boton_registro" >Registarse</button>
         </p>
 </body>

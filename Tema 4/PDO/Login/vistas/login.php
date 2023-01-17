@@ -36,7 +36,6 @@ if (isset($_POST["boton_login"])) {
                 header("Location:index.php");
             } else {
                 $error_login = true;
-                "<span class='error'>Usuario o contraseña incorrectos</span>";
             }
         } catch (PDOException $e) {
 
