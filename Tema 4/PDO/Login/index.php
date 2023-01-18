@@ -19,8 +19,6 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION[
     require "src/seguridad.php";
 
 
-
-
     if($datos_usuario_log["tipo"] == "admin"){ //Si es ADMIN
 
         require "vistas/admin.php";
