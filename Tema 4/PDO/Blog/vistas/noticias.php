@@ -1,89 +1,15 @@
 <?php
 
-//LOGIN
+try {
 
-if (isset($_POST["boton_login"])) {
+    $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+} catch (PDOException $e) {
 
-    $error_usuario = $_POST["usuario"] == "";
-    $error_clave = $_POST["clave"] == "";
-
-    $error_form = $error_usuario || $error_clave;
-
-    if (!$error_form) { //Si no hay errores, comprobamos veracidad
-
-        $error_login = true;
-
-        //Consulta veracidad
-        try {
-            $consulta = "SELECT * FROM usuarios WHERE usuario = ? AND clave = ?";
-            $sentencia = $conexion->prepare($consulta); //Prepara la consulta
-
-            $datos[] = $_POST["usuario"];
-            $datos[] = md5($_POST["clave"]);
-            $sentencia->execute($datos); //La ejecuta
-
-            if ($sentencia->rowCount() > 0) { //Si se encuentra el usuario con la contraseña
-                $_SESSION["usuario"] = $datos[0];
-                $_SESSION["clave"] = $datos[1];
-                $_SESSION["ultimo_acceso"] = time();
-
-                header("Location:index.php");
-                exit;
-            }
-        } catch (PDOException $e) {
-            $conexion = null;
-            error_page("Blog Personal", "Blog Personal", "<p>No ha sido posible conectar a la BD. Error " . $e->getMessage() . "</p></body></html>");
-        }
-    }
+    $mensaje_error = "<p>Imposible realizar la conexión. Error: " . $e->getMessage() . "</p></body></html>";
+    die($mensaje_error);
 }
 
-
-require "cabecera.php";
-
-
-?>
-
-<!-- LOGIN -->
-
-
-
-<form action="index.php" method="post">
-    <p>
-        <label for="usuario">Nombre de usuario: </label>
-        <input type="text" id="usuario" name="usuario" value="<?php if (isset($_POST["usuario"])) echo $_POST["usuario"] ?>">
-        <?php
-        if (isset($_POST["boton_login"]) && $error_usuario)
-            echo "<span class='error'> *Campo vacío</span>";
-        ?>
-    </p>
-
-    <p><label for="clave">Clave: </label>
-        <input type="password" id="clave" name="clave">
-        <?php
-        if (isset($_POST["boton_login"]) && $error_clave)
-            echo "<span class='error'> *Campo vacío</span>";
-        ?>
-    </p>
-
-    <?php
-    if (isset($error_login) && $error_login) {
-        echo "<span class='error'>Usuario o contraseña incorrectos</span>";
-    }
-
-    if (isset($_SESSION["seguridad"])) {
-        echo "<p>" . $_SESSION["seguridad"] . "</p>";
-        unset($_SESSION["seguridad"]);
-    }
-    ?>
-
-    <p>
-        <button type="submit" name="boton_login">Entrar</button>
-        <button type="submit" formaction="registro_usuario.php">Registarse</button>
-    </p>
-</form>
-
-<?php
-
+//NOTICIAS
 
 try {
 
@@ -135,17 +61,6 @@ try {
 
                     echo "<p>No hay comentarios para esta noticia. ¡Sé tu el primero!</p>";
                 }
-
-
-                echo "<form action='index.php' method='post'>
-                <label for='comentario'>Dejar un comentario</label><br />
-                <textarea id='comentario' name='comentario' disabled>Para dejar un comentario es necesario estar registrado</textarea>
-                <p>
-                    <button type='submit'>Volver</button>
-                </p>
-            </form>";
-
-
             } catch (PDOException $e) {
                 $conexion = null;
                 $sentencia = null;
@@ -185,11 +100,3 @@ try {
     $mensaje_error = "<p>Imposible realizar la consulta. Error: " . $e->getMessage() . "</p></body></html>";
     die($mensaje_error);
 }
-
-
-
-?>
-
-</body>
-
-</html>
