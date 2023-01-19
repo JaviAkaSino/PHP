@@ -26,7 +26,7 @@ function repetido($conexion, $tabla, $columna, $valor, $columna_clave = null, $v
 
     if (isset($columna_clave)) {
 
-        $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . " = ? AND " . $columna_clave . "= ?";
+        $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . " = ? AND " . $columna_clave . "<> ?";
         $datos[] = $valor;
         $datos[] = $valor_clave;
     } else {
