@@ -32,7 +32,8 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION[
 
     if($datos_usuario_log["tipo"] == "admin"){
 
-
+        require "vistas/admin.php";
+        
     } else {
 
         require "vistas/normal.php";
