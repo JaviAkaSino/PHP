@@ -2,13 +2,13 @@
 
     require "cabecera.php";
 
-    echo "<p>
-            Bienvenido <strong>" . $datos_usuario_log["usuario"] . "</strong> - 
-            <form action='index.php' method='post'>
-                <button type='submit' name='boton_salir' class='enlace admin'>Salir</button>
+    echo "<div class='linea'>
+    <span>Bienvenido <strong>" . $datos_usuario_log["usuario"] . "</strong> - </span>
+    <form action='index.php' method='post'>
+                <button type='submit' name='boton_salir' class='enlace admin'>&nbsp;Salir</button>
             </form>
            
-        </p>";
+        </div>";
 
 
 

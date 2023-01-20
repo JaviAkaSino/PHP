@@ -15,7 +15,8 @@
         th,
         td {
             border-collapse: collapse;
-            border: 1px solid black
+            border: 1px solid black;
+            text-align: center;
         }
 
         table{
@@ -42,6 +43,11 @@
             font-size: medium;  
         }
 
+        .linea{
+            display:flex;
+            flex-flow: row;
+            text-align: center;
+        }
     </style>
     <title>Blog Personal</title>
 </head>

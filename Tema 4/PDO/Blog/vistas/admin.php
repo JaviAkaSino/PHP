@@ -2,18 +2,18 @@
 
     require "cabecera.php";
 
-    echo "<p class='linea'>
-            Bienvenido <strong>" . $datos_usuario_log["usuario"] . "</strong> - 
+    echo "<div class='linea'>
+            <span>Bienvenido <strong>" . $datos_usuario_log["usuario"] . "</strong> - </span>
             <form action='index.php' method='post'>
                 ";
 
     if (isset($_POST["boton_comentarios"])) {
-        echo "<button type='submit' name='boton_volver'class='enlace admin'>Volver</button> - ";
+        echo "<button type='submit' name='boton_volver'class='enlace admin'>&nbsp;Volver</button> - ";
     }
 
     echo "<button type='submit' name='boton_salir'class='enlace admin'>Salir</button>";
 
-    echo "</form></p>";
+    echo "</form></div>";
 
         echo "<ul><li>
         <form action='index.php' method='post'>
@@ -283,20 +283,22 @@
                     echo "<tr>
                         <td>" . $tupla["comentario"] . "
                             <br/>
-                            Dijo <strong>" . $tupla["usuario"] . "</strong> en
+                            <div class='linea'>
+                            <span>Dijo <strong>" . $tupla["usuario"] . "</strong> en&nbsp;</span>
                             <form action='index.php' method='post'>
-                                <button type='submit' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
+                                <button type='submit' name='boton_ver' class='enlace admin' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
                             </form>
+                            </div>
                         </td>
                         <td>
                             <form action='index.php' method='post'>";
 
                     if ($tupla["estado"] == "sin validar") {
-                        echo "<button type='submit' name='boton_aprobar_comentario' value='" . $tupla["idComentario"] . "'>Aprobar</button> - ";
+                        echo "<button type='submit' class='enlace admin' name='boton_aprobar_comentario' value='" . $tupla["idComentario"] . "'>Aprobar</button> - ";
                     }
 
-                    echo    "<button type='submit' name='boton_editar_comentario' value='" . $tupla["idComentario"] . "'>Editar</button> - 
-                        <button type='submit' name='boton_borrar_comentario' value='" . $tupla["idComentario"] . "'>Borrar</button>
+                    echo    "<button type='submit' class='enlace admin' name='boton_editar_comentario' value='" . $tupla["idComentario"] . "'>Editar</button> - 
+                        <button type='submit' class='enlace admin' name='boton_borrar_comentario' value='" . $tupla["idComentario"] . "'>Borrar</button>
                         <input type='hidden' name='boton_comentarios'/>   
                     </form>
                 </td>
