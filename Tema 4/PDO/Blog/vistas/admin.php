@@ -2,22 +2,27 @@
 
     require "cabecera.php";
 
-    echo "<p>
+    echo "<p class='linea'>
             Bienvenido <strong>" . $datos_usuario_log["usuario"] . "</strong> - 
             <form action='index.php' method='post'>
                 ";
 
     if (isset($_POST["boton_comentarios"])) {
-        echo "<button type='submit' name='boton_volver'>Volver</button>";
+        echo "<button type='submit' name='boton_volver'class='enlace admin'>Volver</button> - ";
     }
 
-    echo "<button type='submit' name='boton_salir'>Salir</button>
-        <ul><li>
-            <button type='submit' name='boton_comentarios'>Administrar Comentarios</button>
-        </li></ul>";
+    echo "<button type='submit' name='boton_salir'class='enlace admin'>Salir</button>";
 
-    echo "</form>  
-        </p>";
+    echo "</form></p>";
+
+        echo "<ul><li>
+        <form action='index.php' method='post'>
+            <button type='submit' class='enlace admin' name='boton_comentarios'>Administrar Comentarios</button>
+        </form>  
+        </p>
+            </li></ul>";
+
+
 
 
 
@@ -50,20 +55,27 @@
         }
     }
 
-    if (isset($_POST["boton_editar_comentario"])) {
-        try {
-            $consulta = "";
+    if (isset($_POST["boton_confirmar_editar"])) {
 
-            $sentencia = $conexion->prepare($consulta);
-            $datos_ec[] = $_POST["boton_editar_comentario"];
 
-            $sentencia->execute($datos_ec);
+        if ($_POST["comentario_editado"] != "") { //Si está en blanco, sencillamente no se edita
 
-            unset($datos_ec);
-        } catch (PDOException $e) {
-            $sentencia = null;
-            $conexion = null;
-            die(pag_error("Blog Personal", "Blog Personal", "Imposible realizar consulta. Error: " . $e->getMessage()));
+            try {
+                $consulta = "UPDATE comentarios SET comentario = ?
+                            WHERE idComentario = ?";
+
+                $sentencia = $conexion->prepare($consulta);
+                $datos_cec[] = $_POST["comentario_editado"];
+                $datos_cec[] = $_POST["boton_confirmar_editar"];
+
+                $sentencia->execute($datos_cec);
+
+                unset($datos_ec);
+            } catch (PDOException $e) {
+                $sentencia = null;
+                $conexion = null;
+                die(pag_error("Blog Personal", "Blog Personal", "Imposible realizar consulta. Error: " . $e->getMessage()));
+            }
         }
     }
 
@@ -296,6 +308,42 @@
 
                 echo "<p>No se han encontrado comentarios</p>";
             }
+
+            if (isset($_POST["boton_editar_comentario"])) {
+
+
+                try {
+
+                    $consulta = "SELECT * FROM comentarios 
+                        JOIN usuarios ON comentarios.idUsuario = usuarios.idUsuario 
+                        JOIN noticias ON comentarios.idNoticia = noticias.idNoticia 
+                        WHERE idComentario = ?";
+
+                    $sentencia =  $conexion->prepare($consulta);
+
+                    $datos_ec[] = $_POST["boton_editar_comentario"];
+
+                    $sentencia->execute($datos_ec);
+
+                    $tupla = $sentencia->fetch(PDO::FETCH_ASSOC);
+
+                    if ($sentencia->rowCount() > 0) {
+
+                        echo "<h4>Editar el comentario " . $_POST["boton_editar_comentario"] . " (" . $tupla["usuario"] . " en \"" . $tupla["titulo"] . "\")</h4>
+                    <form action='index.php' method='post'>
+                        <textarea id='comentario_editado' name='comentario_editado'>" . $tupla["comentario"] . "</textarea>
+                
+                        <button type='submit' name='boton_confirmar_editar' value='" . $tupla["idComentario"] . "'>Continuar</button>
+                        <button type='submit' name='boton_comentarios'>Volver</button>
+                        <input type='hidden' name='boton_comentarios'/>   
+                    </form>";
+                    } else {
+
+                        echo "<h4>El comentario " . $_POST["boton_editar_comentario"] . " ya no está en la BD";
+                    }
+                } catch (PDOException $e) {
+                }
+            }
         } catch (PDOException $e) {
             $conexion = null;
             $sentencia = null;
@@ -318,7 +366,7 @@
                 foreach ($respuesta as $tupla) {
 
                     echo "<form action='index.php' method='post'>
-                            <button type='submit' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
+                            <button type='submit' class='enlace' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
                         </form>";
                     echo "<p>" . $tupla["copete"] . "</p>";
                 }

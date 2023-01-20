@@ -111,7 +111,7 @@ if (isset($_POST["boton_editar_foto"])) {
 
 if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION["ultimo_acceso"])) {
 
-
+    $salto = "index.php";
     require "src/seguridad.php";
 
 

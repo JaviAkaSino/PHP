@@ -12,6 +12,8 @@ session_start();
 if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION["ultimo_acceso"])) {
 
     require "src/seguridad.php";
+
+    
 } else { // Si NO está logado
 
     if (isset($_POST["boton_continuar_registro"])) {

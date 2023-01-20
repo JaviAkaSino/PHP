@@ -5,7 +5,7 @@
     echo "<p>
             Bienvenido <strong>" . $datos_usuario_log["usuario"] . "</strong> - 
             <form action='index.php' method='post'>
-                <button type='submit' name='boton_salir'>Salir</button>
+                <button type='submit' name='boton_salir' class='enlace admin'>Salir</button>
             </form>
            
         </p>";
@@ -139,7 +139,7 @@
                     foreach ($respuesta as $tupla) {
 
                         echo "<form action='index.php' method='post'>
-                            <button type='submit' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
+                            <button type='submit' class='enlace' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
                         </form>";
                         echo "<p>" . $tupla["copete"] . "</p>";
                     }

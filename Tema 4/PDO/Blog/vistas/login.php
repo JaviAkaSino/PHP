@@ -170,7 +170,7 @@ try {
                 foreach ($respuesta as $tupla) {
 
                     echo "<form action='index.php' method='post'>
-                            <button type='submit' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
+                            <button type='submit' class='enlace' name='boton_ver' value='" . $tupla["idNoticia"] . "'>" . $tupla["titulo"] . "</button>
                         </form>";
                     echo "<p>" . $tupla["copete"] . "</p>";
                 }

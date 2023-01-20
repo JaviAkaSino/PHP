@@ -32,8 +32,8 @@ try {
 
         $sentencia = null;
 
-        //recarga ???????
-        header("Location:index.php"); 
+        header("Location:".$salto); 
+
         exit;
     } else { //Si está guardamos datos
 
@@ -54,7 +54,7 @@ if (time() - $_SESSION["ultimo_acceso"] > MINUTOS * 60) {
     session_unset(); //borra datos
     $_SESSION["seguridad"] = "Se ha cerrado sesión por inactividad. Tiempo excedido";
     //recarga ???????
-    header("Location:index.php"); 
+    header("Location:".$salto); 
     exit;
 }
 
