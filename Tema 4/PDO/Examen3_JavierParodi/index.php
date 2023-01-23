@@ -7,10 +7,6 @@ session_start();
 
 // SERVIDOR_BD,USUARIO_BD,CLAVE_BD y NOMBRE_BD son CTES
 
-//Conexión con PDO
-$conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-//Algunas funciones y metodos según conexion PDO ó mysqli
-$ultim_id = $conexion->lastInsertId();
 
 if (isset($_POST["boton_salir"])) {
     session_unset();
@@ -18,17 +14,18 @@ if (isset($_POST["boton_salir"])) {
     exit;
 }
 
-if (isset($_POST["boton_registro"])){
-
-    
-    
+if (isset($_POST["boton_registro"])) {
 }
 
 if (isset($_POST["boton_borrar_foto"])) {
 
     //$_POST["boton_borrar_foto"]
     //$_POST["foto_borrar"]
-
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        die(pag_error("Imposible conectar. Error: " . $e->getMessage()));
+    }
 
     try {
 
@@ -53,7 +50,11 @@ if (isset($_POST["boton_borrar_foto"])) {
 
 if (isset($_POST["boton_editar_foto"])) {
 
-
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    } catch (PDOException $e) {
+        die(pag_error("Imposible conectar. Error: " . $e->getMessage()));
+    }
     //$_POST["boton_editar_foto"]
     //$_POST["foto_borrar"]
 
@@ -164,8 +165,8 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION[
 
         if (isset($_POST["boton_editar_foto"]) && $error_foto) {
 
-            if(is_string($error_foto))
-                echo "<span class='error'>".$error_foto."</<span>";
+            if (is_string($error_foto))
+                echo "<span class='error'>" . $error_foto . "</<span>";
 
             if ($_FILES["foto"]["name"] != "") {
 

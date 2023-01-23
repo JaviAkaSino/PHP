@@ -171,4 +171,8 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION[
 
 <?php
     }
+} else {
+
+    header("Location:".$salto);
+    exit;
 }

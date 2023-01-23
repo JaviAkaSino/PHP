@@ -22,7 +22,7 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION[
         $error_clave = $_POST["clave"] == "";
         $error_clave2 = $_POST["clave2"] == "";
         $error_foto = $_FILES["foto"]["name"] != "" &&
-            ($_FILES["foto"]["error"] || !getimagesize($_FILES["foto"]["tmp_name"]) || $_FILES["foto"]["size"] > 5000000);
+            ($_FILES["foto"]["error"] || !getimagesize($_FILES["foto"]["tmp_name"]) || $_FILES["foto"]["size"] > 500000);
 
         if (!$error_clave && !$error_clave2)
             $error_clave = $_POST["clave"] != $_POST["clave2"];
