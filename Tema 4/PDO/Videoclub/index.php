@@ -6,14 +6,126 @@ require "src/functions.php";
 session_name("Videoclub_Examen");
 session_start();
 
-//$conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+
+if (isset($_POST["boton_salir"])) {
+    session_unset();
+    header("Location:index.php");
+    exit;
+}
+
+if (isset($_POST["boton_borrar_foto"])) {
+
+    //$_POST["boton_borrar_foto"]
+    //$_POST["foto_borrar"]
+
+    if ($_POST["foto_borrar"] != "no_imagen.jpg") {
+
+
+        try {
+            $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+        } catch (PDOException $e) {
+            die(pag_error("Videoclub", "Videoclub", "Imposible conectar. Error: " . $e->getMessage()));
+        }
+
+
+        try {
+
+            $consulta = "UPDATE clientes SET foto = 'no_imagen.jpg' WHERE id_cliente = ?";
+
+            $sentencia = $conexion->prepare($consulta);
+            $datos_borrar_foto[] = $_POST["boton_borrar_foto"];
+
+            $sentencia->execute($datos_borrar_foto);
+
+            //si se ha ejecutado borramos archivo
+
+            if (is_file("Images/" . $_POST["foto_borrar"])) //si existe la foto
+                unlink("Images/" . $_POST["foto_borrar"]);
+        } catch (PDOException $e) {
+
+            $conexion = null;
+            $sentencia = null;
+            die(pag_error("Imposible realizar consulta. Error: " . $e->getMessage()));
+        }
+    }
+}
+
+if (isset($_POST["boton_editar_foto"])) {
+
+
+    $error_foto = $_FILES["foto"]["name"] == "" || $_FILES["foto"]["error"] || !getimagesize($_FILES["foto"]["tmp_name"]) || $_FILES["foto"]["size"] > 500000;
+
+
+    if (!$error_foto) {
+
+        //Nombre foto nueva
+
+        //extension 
+        $extension = "";
+
+        $array_nombre = explode(".", $_FILES["foto"]["name"]);
+        if (count($array_nombre) > 1)
+            $extension = "." . end($array_nombre);
+
+        //img + id + ext
+        $foto_nueva = "img" . $_POST["boton_editar_foto"] . $extension;
+
+
+        //prueba mover
+
+        @$var = move_uploaded_file($_FILES["foto"]["tmp_name"], "Images/" . $foto_nueva);
+
+        if ($var) {
+
+
+            try {
+                $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+            } catch (PDOException $e) {
+                die(pag_error("Videoclub", "Videoclub", "Imposible conectar. Error: " . $e->getMessage()));
+            }
+
+            try {
+
+                $consulta = "UPDATE clientes SET foto = ? WHERE id_cliente = ?";
+
+                $sentencia = $conexion->prepare($consulta);
+                $datos_editar_foto[] = $foto_nueva;
+                $datos_editar_foto[] = $_POST["boton_editar_foto"];
+
+                $sentencia->execute($datos_editar_foto);
+            } catch (PDOException $e) {
+                //si NO se ha ejecutado borramos archivo
+
+                if (is_file("Images/" . $_POST["foto_borrar"])) //si existe la foto
+                    unlink("Images/" . $_POST["foto_borrar"]);
+                $conexion = null;
+                $sentencia = null;
+                die(pag_error("Imposible realizar consulta. Error: " . $e->getMessage()));
+            }
+        } else {
+
+            $error_foto = "No se ha podido mover la imagen por falta de permisos";
+        }
+    }
+}
+
 
 
 if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION["ultimo_acceso"])) {
 
     require "src/seguridad.php";
 
-    
+
+
+    if ($datos_usuario_log["tipo"] == "admin") {
+
+
+        require "vistas/admin.php";
+    } else {
+
+        require "vistas/normal.php";
+    }
 } else { // Si NO está logado
 
     if (isset($_POST["boton_continuar_registro"])) {
@@ -195,6 +307,7 @@ if (isset($_SESSION["usuario"]) && isset($_SESSION["clave"]) && isset($_SESSION[
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="css/styles.css" rel="stylesheet" type="text/css"/>
             <title>Videoclub</title>
         </head>
 
