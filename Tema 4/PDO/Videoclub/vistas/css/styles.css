@@ -1,0 +1,41 @@
+* {
+    box-sizing: border-box;
+}
+
+table,
+th,
+td {
+    border-collapse: collapse;
+    border: 1px solid black;
+    text-align: center;
+}
+
+table{
+    width:80%;
+    margin: auto;
+    text-align: center;
+}
+
+th {
+    background-color: grey;
+}
+.enlace{
+    border: none;
+    background: none;
+    color: blue;
+    text-decoration: underline; 
+    font-weight: bold;
+    font-size: large;     
+    padding:0;    
+}
+
+.admin{
+    font-weight: normal;
+    font-size: medium;  
+}
+
+.linea{
+    display:flex;
+    flex-flow: row;
+    text-align: center;
+}
