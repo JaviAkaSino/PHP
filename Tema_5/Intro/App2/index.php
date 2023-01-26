@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>App 2 servicios</title>
 </head>
 
 <body>
@@ -57,6 +57,7 @@
 
     $datos_post["datos1"] = "María";
     $datos_post["datos2"] = "Pedro Miguel";
+    $datos_post["datos3"] = "Este no va a entrar";
 
     $respuesta = consumir_servicios_rest(DIR_SERV . "/saludo", "POST", $datos_post);
 
@@ -66,6 +67,37 @@
         die("<p>Error consumiendo el servicio: " . DIR_SERV . "/saludo</p>" . $respuesta . "</body></html>");
 
     echo "<p>" . $obj->mensaje . "</p><hr/>";
+
+
+    //DELETE
+
+    $respuesta = consumir_servicios_rest(DIR_SERV . "/borrar_saludo/3", "DELETE");
+    $obj = json_decode($respuesta);
+    if (!$obj)
+        die("<p>Error consumiendo el servicio: " . DIR_SERV . "/saludo</p>" . $respuesta . "</body></html>");
+
+    echo "<p>" . $obj->mensaje . "</p><hr/>";
+
+
+    //PUT
+
+    $respuesta = consumir_servicios_rest(DIR_SERV . "/modificar_saludo/3/" . urlencode("Nuevo saludo"), "PUT");
+    $obj = json_decode($respuesta);
+    if (!$obj)
+        die("<p>Error consumiendo el servicio: " . DIR_SERV . "/saludo</p>" . $respuesta . "</body></html>");
+    echo "<p>" . $obj->mensaje . "</p><hr/>";
+
+
+    //PUT POR ABAJO
+
+    $datos_put["saludo_nuevo"] = "Otro nuevo saludo";
+
+    $respuesta = consumir_servicios_rest(DIR_SERV . "/modificar_saludo/3" , "PUT", $datos_put);
+    $obj = json_decode($respuesta);
+    if (!$obj)
+        die("<p>Error consumiendo el servicio: " . DIR_SERV . "/saludo</p>" . $respuesta . "</body></html>");
+    echo "<p>" . $obj->mensaje . "</p><hr/>";
+
 
     ?>
 </body>

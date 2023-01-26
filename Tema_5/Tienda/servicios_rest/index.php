@@ -1,10 +1,29 @@
 <?php
-
-//Aquí no puede haber die, tiene que devolverse el dato, die en la app
-
+require "src/bd_config.php";
+require "src/functions.php";
 require __DIR__ . '/Slim/autoload.php';
 
 $app= new \Slim\App;
+
+//INFO DE TODOS LOS PRODUCTOS
+
+$app->get("/productos", function(){
+
+    echo json_encode(obtener_productos());
+
+});
+
+
+//INFO DE UN PRODUCTO
+
+$app->get("/producto/{cod}", function($request){
+
+    echo json_encode(obtener_producto($request->getAttribute("cod")));
+
+});
+
+
+
 
 $app->get('/saludo',function(){
 
