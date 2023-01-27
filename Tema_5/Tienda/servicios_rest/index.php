@@ -22,52 +22,78 @@ $app->get("/producto/{cod}", function($request){
 
 });
 
+//INSERTAR
 
+$app->post("/producto/insertar",function($request){
 
+    $datos[]=$request->getParam("cod");
+    $datos[]=$request->getParam("nombre");
+    $datos[]=$request->getParam("nombre_corto");
+    $datos[]=$request->getParam("descripcion");
+    $datos[]=$request->getParam("PVP");
+    $datos[]=$request->getParam("familia");
 
-$app->get('/saludo',function(){
-
-    echo json_encode(array("mensaje"=> "Hola en general") ,JSON_FORCE_OBJECT);
-});
-
-$app->get('/saludo/{codigo}',function($request){
-//getAttribute cuando se mandan por url
-    echo json_encode(array("mensaje"=> "Hola ".$request->getAttribute('codigo')) ,JSON_FORCE_OBJECT);  
-});
-
-//POST
-$app->post('/saludo',function($request){
-    //getParam cuando se envían por abajo
-    $nombre1=$request->getParam("datos1");
-    $nombre2=$request->getParam("datos2");
-    echo json_encode(array("mensaje"=> "Hola ".$nombre1." y ".$nombre2) ,JSON_FORCE_OBJECT);
+    echo json_encode(insertar_producto($datos));
 });
 
 
-//DELETE
-$app->delete("/borrar_saludo/{id}",function($request){
+//EDITAR PRODUCTO
 
-    echo json_encode(array("mensaje"=>"El saludo con id: ".$request->getAttribute("id")." ha sido borrado", JSON_FORCE_OBJECT));
+$app->put("/producto/actualizar/{cod}",function($request){
+
+    $datos[]=$request->getParam("nombre");
+    $datos[]=$request->getParam("nombre_corto");
+    $datos[]=$request->getParam("descripcion");
+    $datos[]=$request->getParam("PVP");
+    $datos[]=$request->getParam("familia");
+    $datos[]=$request->getAttribute("cod");
+
+    echo json_encode(editar_producto($datos));
+
+});
+
+
+//BORRAR PRODUCTO
+
+$app->delete("/producto/borrar/{cod}", function($request){
+
+    echo json_encode(borrar_producto($request->getAttribute("cod")));
+});
+
+
+//GET QUE DE TODOS LAS FAMILIAS
+$app->get("/familias", function(){
+
+echo json_encode(obtener_familias());
 
 });
 
 
-//PUT
-$app->put("/modificar_saludo/{id}/{saludo_nuevo}",function($request){
-        
-    echo json_encode(array("mensaje"=>"El saludo con id: ".$request->getAttribute("id")." ha sido actualizado a ".$request->getAttribute("saludo_nuevo"), JSON_FORCE_OBJECT));
+//REPETIDO INSERTAR
 
+$app->get("/repet_insert/{tabla}/{columna}/{valor}", function($request){
 
-});
+    $tabla=$request->getAttribute("tabla");
+    $columna=$request->getAttribute("columna");
+    $valor=$request->getAttribute("valor");
 
-//PUT POR ABAJO
-$app->put("/modificar_saludo/{id}",function($request){
-        
-    echo json_encode(array("mensaje"=>"El saludo con id: ".$request->getAttribute("id")." ha sido actualizado a ".$request->getParam("saludo_nuevo"), JSON_FORCE_OBJECT));
+    echo json_encode(repetido($tabla, $columna, $valor));
 
+    });
 
-});
+//REPETIDO EDITAR
 
+$app->get("/repet_edit/{tabla}/{columna}/{valor}/{columna_clave}/{valor_clave}", function($request){
+
+    $tabla=$request->getAttribute("tabla");
+    $columna=$request->getAttribute("columna");
+    $valor=$request->getAttribute("valor");
+    $columna_clave=$request->getAttribute("columna_clave");
+    $valor_clave=$request->getAttribute("valor_clave");
+
+    echo json_encode(repetido($tabla, $columna, $valor, $columna_clave, $valor_clave));
+
+    });
 
 // Una vez creado servicios los pongo a disposición
 $app->run();

@@ -1,5 +1,6 @@
 <?php
 
+//LISTA TODOS LOS PRODUCTOS
 function obtener_productos()
 {
 
@@ -24,13 +25,11 @@ function obtener_productos()
         $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
     }
 
-
-
-
     return $respuesta;
 }
 
 
+//BUSCA UN PRODUCTO
 function obtener_producto($cod)
 {
 
@@ -57,8 +56,166 @@ function obtener_producto($cod)
         $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
     }
 
+    return $respuesta;
+}
+
+//INSERTAR UN PRODUCTO
+function insertar_producto($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "INSERT INTO producto (cod,nombre,nombre_corto,descripcion,PVP,familia) VALUES (?,?,?,?,?,?)";
+
+            $sentencia = $conexion->prepare($consulta);
+
+            $sentencia->execute($datos);
+
+            $respuesta["mensaje"] = $datos[0]; //Devuelve el código, avisando de OK
+
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible realizar la inserción. Error: " . $e->getMessage();
+        }
+
+        $sentencia = null;
+        $conexion = null;
+    } catch (PDOException $e) {
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+//EDITAR UN PRODUCTO
+function editar_producto($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "UPDATE producto SET nombre =?,nombre_corto=?,descripcion=?,PVP=?,familia=?
+                            WHERE cod = ?";
+
+            $sentencia = $conexion->prepare($consulta);
+
+            $sentencia->execute($datos);
+
+            $respuesta["mensaje"] = $datos[5]; //Devuelve el código, avisando de OK
+
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible editar el producto. Error: " . $e->getMessage();
+        }
+
+        $sentencia = null;
+        $conexion = null;
+    } catch (PDOException $e) {
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+//BORRAR UN PRODUCTO
+function borrar_producto($datos)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "DELETE FROM producto
+                            WHERE cod = ?";
+
+            $sentencia = $conexion->prepare($consulta);
+
+            $sentencia->execute([$datos]);
+
+            $respuesta["mensaje"] = $datos; //Devuelve el código, avisando de OK
+
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible borrar el producto. Error: " . $e->getMessage();
+        }
+
+        $sentencia = null;
+        $conexion = null;
+    } catch (PDOException $e) {
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
 
 
+//LISTAR FAMILIAS
+
+function obtener_familias()
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "SELECT * FROM familia";
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute();
+
+            $respuesta["familias"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible borrar el producto. Error: " . $e->getMessage();
+        }
+    } catch (PDOException $e) {
+
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+
+
+//REPETIDO INSERT
+function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave = null)
+{
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $datos[] = $valor;
+
+            if (isset($_POST[$columna_clave])) {
+                $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . "= ? AND " . $columna_clave . " <> ?";
+                $datos[] = $valor_clave;
+            } else {
+                $consulta = "SELECT * FROM ".$tabla." WHERE ".$columna." = ?";
+            }
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            $respuesta["repetido"] = $sentencia->rowCount() > 0;
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible realizar la consulta. Error: " . $e->getMessage();
+        }
+
+        $sentencia = null;
+        $conexion = null;
+    } catch (PDOException $e) {
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
 
     return $respuesta;
 }
