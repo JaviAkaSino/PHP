@@ -184,6 +184,36 @@ function obtener_familias()
 }
 
 
+//OBTENER FAMILIA
+function obtener_familia($cod)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "SELECT * FROM familia WHERE cod = ?";
+
+            $sentencia = $conexion->prepare($consulta);
+
+            $datos[]=$cod;
+
+            $sentencia->execute($datos);
+
+            $respuesta["familia"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible relizar la consulta. Error: " . $e->getMessage();
+        }
+    } catch (PDOException $e) {
+
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
 
 //REPETIDO INSERT
 function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave = null)

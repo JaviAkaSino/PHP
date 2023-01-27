@@ -36,7 +36,7 @@ function consumir_servicios_rest($url, $metodo, $datos = null)
 
     //LISTAR PRODUCTOS
 
-    $url = DIR_SERV."/productos";
+    $url = DIR_SERV . "/productos";
 
     $respuesta = consumir_servicios_rest($url, "GET");
 
@@ -69,7 +69,7 @@ function consumir_servicios_rest($url, $metodo, $datos = null)
 
     //BUSCAR UN PRODUCTO
 
-    $url = DIR_SERV."/producto/3DSNG";
+    $url = DIR_SERV . "/producto/3DSNG";
 
     $respuesta = consumir_servicios_rest($url, "GET");
 
@@ -89,112 +89,134 @@ function consumir_servicios_rest($url, $metodo, $datos = null)
 
 
 
-//INSERTAR UN PRODUCTO
+    //INSERTAR UN PRODUCTO
 
-$datos_insert["cod"]= "MIAU";
-$datos_insert["nombre"]= "Mechero Iluminador Automático Ultravioleta";
-$datos_insert["nombre_corto"]= "Mecheraso";
-$datos_insert["descripcion"]= "Mechero con linterna y UV, eléctrico";
-$datos_insert["PVP"]= "19.95";
-$datos_insert["familia"]= "MULTIF";
+    $datos_insert["cod"] = "MIAU";
+    $datos_insert["nombre"] = "Mechero Iluminador Automático Ultravioleta";
+    $datos_insert["nombre_corto"] = "Mecheraso";
+    $datos_insert["descripcion"] = "Mechero con linterna y UV, eléctrico";
+    $datos_insert["PVP"] = "19.95";
+    $datos_insert["familia"] = "MULTIF";
 
-$url = DIR_SERV."/producto/insertar";
+    $url = DIR_SERV . "/producto/insertar";
 
-$respuesta = consumir_servicios_rest($url, "POST", $datos_insert);
+    $respuesta = consumir_servicios_rest($url, "POST", $datos_insert);
 
-$obj = json_decode($respuesta);
+    $obj = json_decode($respuesta);
 
-if (!$obj)
-    die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+    if (!$obj)
+        die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
 
-//Si falla la bd
-if (isset($obj->mensaje_error))
-    die("<p>" . $obj->mensaje_error . "</p></body></html>");
-else
-    echo "<p>El producto con código ".$obj->mensaje." ha sido insertado con éxito</p><hr/>";
+    //Si falla la bd
+    if (isset($obj->mensaje_error))
+        die("<p>" . $obj->mensaje_error . "</p></body></html>");
+    else
+        echo "<p>El producto con código " . $obj->mensaje . " ha sido insertado con éxito</p><hr/>";
 
 
 
     //EDITAR UN PRODUCTO
 
-$datos_update["nombre"]= "Mechero Iluminador Automático Ultravioleta";
-$datos_update["nombre_corto"]= "Mecheraso PROMO";
-$datos_update["descripcion"]= "Mechero con linterna y UV, eléctrico";
-$datos_update["PVP"]= "10.95";
-$datos_update["familia"]= "MULTIF";
+    $datos_update["nombre"] = "Mechero Iluminador Automático Ultravioleta";
+    $datos_update["nombre_corto"] = "Mecheraso PROMO";
+    $datos_update["descripcion"] = "Mechero con linterna y UV, eléctrico";
+    $datos_update["PVP"] = "10.95";
+    $datos_update["familia"] = "MULTIF";
 
-$url = DIR_SERV."/producto/actualizar/MIAU";
+    $url = DIR_SERV . "/producto/actualizar/MIAU";
 
-$respuesta = consumir_servicios_rest($url, "PUT", $datos_update);
+    $respuesta = consumir_servicios_rest($url, "PUT", $datos_update);
 
-$obj = json_decode($respuesta);
+    $obj = json_decode($respuesta);
 
-if (!$obj)
-    die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+    if (!$obj)
+        die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
 
-//Si falla la bd
-if (isset($obj->mensaje_error))
-    die("<p>" . $obj->mensaje_error . "</p></body></html>");
-else
-    echo "<p>El producto con código ".$obj->mensaje." ha sido editado con éxito</p><hr/>";
+    //Si falla la bd
+    if (isset($obj->mensaje_error))
+        die("<p>" . $obj->mensaje_error . "</p></body></html>");
+    else
+        echo "<p>El producto con código " . $obj->mensaje . " ha sido editado con éxito</p><hr/>";
 
 
 
 
     //BORRAR UN PRODUCTO
 
-$url = DIR_SERV."/producto/borrar/MIAU";
+    $url = DIR_SERV . "/producto/borrar/MIAU";
 
-$respuesta = consumir_servicios_rest($url, "DELETE");
+    $respuesta = consumir_servicios_rest($url, "DELETE");
 
-$obj = json_decode($respuesta);
+    $obj = json_decode($respuesta);
 
-if (!$obj)
-    die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+    if (!$obj)
+        die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
 
-//Si falla la bd
-if (isset($obj->mensaje_error))
-    die("<p>" . $obj->mensaje_error . "</p></body></html>");
-else
-    echo "<p>El producto con código ".$obj->mensaje." ha sido borrado con éxito</p><hr/>";
-
-
-
- //LISTAR FAMILIAS
-
- $url = DIR_SERV."/familias";
-
- $respuesta = consumir_servicios_rest($url, "GET");
-
- $obj = json_decode($respuesta);
-
- if (!$obj)
-     die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
-
- //Si falla la bd
- if (isset($obj->mensaje_error))
-     die("<p>" . $obj->mensaje_error . "</p></body></html>");
+    //Si falla la bd
+    if (isset($obj->mensaje_error))
+        die("<p>" . $obj->mensaje_error . "</p></body></html>");
+    else
+        echo "<p>El producto con código " . $obj->mensaje . " ha sido borrado con éxito</p><hr/>";
 
 
- echo "<p>Número de familias: " . count($obj->familias) . "</p>";
+
+    //LISTAR FAMILIAS
+
+    $url = DIR_SERV . "/familias";
+
+    $respuesta = consumir_servicios_rest($url, "GET");
+
+    $obj = json_decode($respuesta);
+
+    if (!$obj)
+        die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+
+    //Si falla la bd
+    if (isset($obj->mensaje_error))
+        die("<p>" . $obj->mensaje_error . "</p></body></html>");
 
 
- echo "<table>";
- echo "<tr><th>Código</th><th>Nombre</th></tr>";
- foreach ($obj->familias as $tupla) {
+    echo "<p>Número de familias: " . count($obj->familias) . "</p>";
 
-     echo "<tr>";
-     echo "<td>" . $tupla->cod . "</td>";
-     echo "<td>" . $tupla->nombre . "</td>";
-     echo "</tr>";
- }
- echo "</table><hr/>";
+
+    echo "<table>";
+    echo "<tr><th>Código</th><th>Nombre</th></tr>";
+    foreach ($obj->familias as $tupla) {
+
+        echo "<tr>";
+        echo "<td>" . $tupla->cod . "</td>";
+        echo "<td>" . $tupla->nombre . "</td>";
+        echo "</tr>";
+    }
+    echo "</table><hr/>";
+
+    
+    //BUSCAR UNA FAMILIA
+
+    $url = DIR_SERV . "/familia/CAMARA";
+
+    $respuesta = consumir_servicios_rest($url, "GET");
+
+    $obj = json_decode($respuesta);
+
+    if (!$obj)
+        die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+
+    //Si falla la bd
+    if (isset($obj->mensaje_error))
+        die("<p>" . $obj->mensaje_error . "</p></body></html>");
+
+    if (!$obj->familia)
+        echo "<p>La familia solicitada no se encuentra en la BD</p>";
+    else
+        echo "<p><strong>Nombre: </strong>" . $obj->familia->nombre . "</p><hr/>";
+
 
 
 
     //BUSCAR UN REPETIDO
 
-    $url = DIR_SERV."/repet_insert/producto/cod/3DSNG";
+    $url = DIR_SERV . "/repet_insert/producto/cod/3DSNG";
 
     $respuesta = consumir_servicios_rest($url, "GET");
 
