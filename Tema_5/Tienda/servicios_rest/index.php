@@ -69,7 +69,7 @@ echo json_encode(obtener_familias());
 });
 
 //GET QUE DE UNA FAMILIAS
-$app->get("/familias/{cod}", function($request){
+$app->get("/familia/{cod}", function($request){
 
     echo json_encode(obtener_familia($request->getAttribute("cod")));
     
