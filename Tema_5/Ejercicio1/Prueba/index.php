@@ -32,7 +32,7 @@ function consumir_servicios_rest($url, $metodo, $datos = null)
     <h1>Listado de los productos</h1>
     <?php
 
-    define("DIR_SERV", "http://localhost/PHP/Tema_5/Tienda/servicios_rest");
+    define("DIR_SERV", "http://localhost/PHP/Tema_5/Ejercicio1/servicios_rest");
 
     //LISTAR PRODUCTOS
 
