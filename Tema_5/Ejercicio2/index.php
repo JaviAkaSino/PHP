@@ -166,10 +166,18 @@ if (isset($_POST["boton_confirmar_borrar"])) {
     ?>
         <div class='centro'>
             <form action='index.php' method='post'>
-                <label for="codigo">Código</label>
-                <input type="text" id="codigo" maxlength="12"/>
-                <button>Cancelar</button>
-                <button name='boton_confirmar_nuevo'>Confirmar</button>
+                <p>
+                    <label for="codigo">Código</label>
+                    <input type="text" id="codigo" maxlength="12" />
+                </p>
+                <p>
+
+                </p>
+                <p>
+                    <button>Cancelar</button>
+                    <button name='boton_confirmar_nuevo'>Confirmar</button>
+                </p>
+
             </form>
         </div>
 
