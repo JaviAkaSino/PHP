@@ -35,6 +35,17 @@ function pag_error($title, $encabezado, $mensaje)
 }
 
 define("DIR_SERV", "http://localhost/PHP/Tema_5/Ejercicio1/servicios_rest");
+/********************************** NUEVO - CONFIRMAR ************************************/
+
+if (isset($_POST["boton_confirmar_nuevo"])){
+
+    $error_codigo = $_POST["codigo"] == "";
+
+    $error_form = $error_codigo;
+
+}
+
+/********************************** EDITAR - CONFIRMAR ************************************/
 
 /********************************** BORRAR - CONFIRMAR ************************************/
 
@@ -112,142 +123,174 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
 <body>
     <h1 class="texto-centrado">Listado de productos</h1>
-    <?php
-    /*********************************** INFO DEL PRODUCTO ***********************************/
-    if (isset($_POST["boton_producto"])) {
+    <div class="centro">
+        <?php
+        /*********************************** INFO DEL PRODUCTO ***********************************/
+        if (isset($_POST["boton_producto"])) {
 
-        echo "<div class='centro'>";
+            echo "<div class='centro'>";
 
 
 
-        echo "<h2>Información del producto " . $_POST["boton_producto"] . "</h2>";
+            echo "<h2>Información del producto " . $_POST["boton_producto"] . "</h2>";
 
-        $url = DIR_SERV . "/producto/" . urlencode($_POST["boton_producto"]);
-        $respuesta = consumir_servicios_rest($url, "GET");
-        $obj = json_decode($respuesta);
-
-        if (isset($obj->mensaje_error))
-            die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</div></body></html>");
-
-        if (!$obj->producto)
-            echo "<p>El producto ya no se encuentra en la BD</p>";
-
-        else {
-
-            /************ LLAMAR A LA FAMILIA ************/
-
-            $url = DIR_SERV . "/familia/" . urlencode($obj->producto->familia);
+            $url = DIR_SERV . "/producto/" . urlencode($_POST["boton_producto"]);
             $respuesta = consumir_servicios_rest($url, "GET");
-            $obj2 = json_decode($respuesta);
+            $obj = json_decode($respuesta);
 
-            if (isset($obj2->mensaje_error))
+            if (isset($obj->mensaje_error))
                 die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</div></body></html>");
 
-            if (!$obj2->familia)
-                $familia = $obj2->producto->familia;
+            if (!$obj->producto)
+                echo "<p>El producto ya no se encuentra en la BD</p>";
 
             else {
-                $familia = $obj2->familia->nombre;
+
+                /************ LLAMAR A LA FAMILIA ************/
+
+                $url = DIR_SERV . "/familia/" . urlencode($obj->producto->familia);
+                $respuesta = consumir_servicios_rest($url, "GET");
+                $obj2 = json_decode($respuesta);
+
+                if (isset($obj2->mensaje_error))
+                    die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</div></body></html>");
+
+                if (!$obj2->familia)
+                    $familia = $obj2->producto->familia;
+
+                else {
+                    $familia = $obj2->familia->nombre;
+                }
+
+                echo "<p><strong>Nombre: </strong>" . $obj->producto->nombre . "</p>";
+                echo "<p><strong>Nombre corto: </strong>" . $obj->producto->nombre_corto . "</p>";
+                echo "<p><strong>Descripción: </strong>" . $obj->producto->descripcion . "</p>";
+                echo "<p><strong>P.V.P.: </strong>" . $obj->producto->PVP . "€</p>";
+                echo "<p><strong>Familia: </strong>" . $familia . "</p>";
+            }
+            echo "</div>";
+        }
+
+        /*********************************** NUEVO PRODUCTO ***********************************/
+
+        if (isset($_POST["boton_nuevo"]) || isset($_POST["boton_confirmar_nuevo"]) && $error_form) {
+
+            echo "<h2>Insertar nuevo producto</h2>";
+
+            $url = DIR_SERV . "/familias";
+            $respuesta = consumir_servicios_rest($url, "GET");
+            $obj = json_decode($respuesta);
+
+            if (isset($obj->mensaje_error)) {
+                die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</div></body></html>");
             }
 
-            echo "<p><strong>Nombre: </strong>" . $obj->producto->nombre . "</p>";
-            echo "<p><strong>Nombre corto: </strong>" . $obj->producto->nombre_corto . "</p>";
-            echo "<p><strong>Descripción: </strong>" . $obj->producto->descripcion . "</p>";
-            echo "<p><strong>P.V.P.: </strong>" . $obj->producto->PVP . "€</p>";
-            echo "<p><strong>Familia: </strong>" . $familia . "</p>";
-        }
-        echo "</div>";
-    }
+            if (!$obj) {
+                echo "<p>Aún no existen familias</p>";
+                echo "<form action='index.php' method='post'>
+                    <button>Volver</button>
+                </form>";
+            } else {
 
-    /*********************************** NUEVO PRODUCTO ***********************************/
+        ?>
+                <form action='index.php' method='post'>
+                    <p>
+                        <label for="codigo">Código</label>
+                        <input type="text" id="codigo" name="codigo" maxlength="12" value="<?php if(isset($_POST["codigo"])) echo $_POST["codigo"]  ?>"/>
+                        <?php if(isset($_POST["boton_confirmar_nuevo"]) && $error_codigo)
+                            echo "<span class='error'>* Campo vacío</span>"?>
+                    </p>
+                    <p>
 
-    if (isset($_POST["boton_nuevo"])) {
+                    </p>
 
-    ?>
-        <div class='centro'>
-            <form action='index.php' method='post'>
-                <p>
-                    <label for="codigo">Código</label>
-                    <input type="text" id="codigo" maxlength="12" />
-                </p>
-                <p>
+                <?php
+                echo "<select name='familia' id='familia'>";
+                foreach ($obj->familias as $tupla) {
+                    echo "<option value='" . $tupla->codigo . "'>" . $tupla->nombre . "</option>";
+                }
+                echo "</select>";
+            }
+                ?>
 
-                </p>
                 <p>
                     <button>Cancelar</button>
                     <button name='boton_confirmar_nuevo'>Confirmar</button>
                 </p>
 
-            </form>
-        </div>
+                </form>
 
 
-    <?php
-    }
 
 
-    /*********************************** EDITAR PRODUCTO ***********************************/
+            <?php
+
+        }
 
 
-    /*********************************** BORRAR PRODUCTO ***********************************/
+        /*********************************** EDITAR PRODUCTO ***********************************/
 
-    if (isset($_POST["boton_borrar"])) {
 
-        echo "<div class='centro texto-centrado'>
+        /*********************************** BORRAR PRODUCTO ***********************************/
+
+        if (isset($_POST["boton_borrar"])) {
+
+            echo "<div class='texto-centrado'>
                 <p>Se dispone usted a borrar el producto " . $_POST["boton_borrar"] . "</p>
                 <form action='index.php' method='post'>
                     <button>Cancelar</button>
                     <button name='boton_confirmar_borrar' value='" . $_POST["boton_borrar"] . "'>Confirmar</button>
                 </form>
             </div>";
-    }
+        }
 
 
 
-    /****************************** TABLA DE PRODUCTOS *****************************/
-    $url = DIR_SERV . "/productos";
-    $respuesta = consumir_servicios_rest($url, "GET");
+        /****************************** TABLA DE PRODUCTOS *****************************/
+        $url = DIR_SERV . "/productos";
+        $respuesta = consumir_servicios_rest($url, "GET");
 
-    $obj = json_decode($respuesta);
+        $obj = json_decode($respuesta);
 
-    if (!$obj) {
-        die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
-    }
+        if (!$obj) {
+            die("<p>Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+        }
 
-    //Si falla la bd
-    if (isset($obj->mensaje_error))
-        die("<p>" . $obj->mensaje_error . "</p></body></html>");
+        //Si falla la bd
+        if (isset($obj->mensaje_error))
+            die("<p>" . $obj->mensaje_error . "</p></body></html>");
 
 
-    echo "<table class='centro texto-centrado'>";
-    echo "<tr>
+        echo "<table class='texto-centrado'>";
+        echo "<tr>
             <th>Código</th>
             <th>Nombre</th>
             <th>PVP</th>
             <th><form action='index.php' method='post'><label for='boton_nuevo'>Producto</label><button name='boton_nuevo' id='boton_nuevo'>[+]</button></form></th>
         </tr>";
-    foreach ($obj->productos as $tupla) {
+        foreach ($obj->productos as $tupla) {
 
-        echo "<tr>";
-        echo "<td><form action='index.php' method='post'><button name='boton_producto' value='" . $tupla->cod . "' class='enlace'>" . $tupla->cod . "</button></form></td>";
-        echo "<td>" . $tupla->nombre_corto . "</td>";
-        echo "<td>" . $tupla->PVP . "</td>";
-        echo "<td><form action='index.php' method='post'>
+            echo "<tr>";
+            echo "<td><form action='index.php' method='post'><button name='boton_producto' value='" . $tupla->cod . "' class='enlace'>" . $tupla->cod . "</button></form></td>";
+            echo "<td>" . $tupla->nombre_corto . "</td>";
+            echo "<td>" . $tupla->PVP . "</td>";
+            echo "<td><form action='index.php' method='post'>
                     <button type='submit' name='boton_borrar' value='" . $tupla->cod . "' class='enlace' >Borrar</button>
                      - 
                     <button type='submit' name='boton_borrar' value='" . $tupla->cod . "' class='enlace'>Editar</button>
                 </form></td>";
-        echo "</tr>";
-    }
-    echo "</table>";
+            echo "</tr>";
+        }
+        echo "</table>";
 
-    if (isset($_SESSION["mensaje_accion"])) {
+        if (isset($_SESSION["mensaje_accion"])) {
 
-        echo "<p class='centro texto-centrado'>" . $_SESSION["mensaje_accion"] . "</p>";
-        unset($_SESSION["mensaje_accion"]);
-    }
+            echo "<p class='centro texto-centrado'>" . $_SESSION["mensaje_accion"] . "</p>";
+            unset($_SESSION["mensaje_accion"]);
+        }
 
-    ?>
+            ?>
+    </div>
 </body>
 
 </html>
