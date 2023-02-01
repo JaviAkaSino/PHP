@@ -35,14 +35,59 @@ function pag_error($title, $encabezado, $mensaje)
 }
 
 define("DIR_SERV", "http://localhost/PHP/Tema_5/Ejercicio1/servicios_rest");
+
+
 /********************************** NUEVO - CONFIRMAR ************************************/
 
-if (isset($_POST["boton_confirmar_nuevo"])){
+if (isset($_POST["boton_confirmar_nuevo"])) {
 
     $error_codigo = $_POST["codigo"] == "";
 
+    if (!$error_codigo) {
+
+        $url = DIR_SERV . "/repet_insert/producto/cod/" . urlencode($_POST["codigo"]);
+        $respuesta = consumir_servicios_rest($url, "GET");
+        $obj = json_decode($respuesta);
+
+        if (isset($obj->mensaje_error))
+            die(pag_error("CRUD - Servicios WEB", "Listado de productos", $obj->mensaje_error));
+        if (!$obj)
+            die(pag_error("CRUD - Servicios WEB", "Listado de productos", "Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+
+        $error_codigo = $obj->repetido;
+    }
+    $error_nombre_corto = $_POST["nombre_corto"] == "";
+    $error_descripcion = $_POST["descripcion"] == "";
+    $error_precio = $_POST["precio"] == "" || $_POST["precio"] < 0;
+
     $error_form = $error_codigo;
 
+    if (!$error_form) {
+
+        $datos_insert["cod"] = $_POST["codigo"];
+        $datos_insert["nombre"] = $_POST["nombre"];
+        $datos_insert["nombre_corto"] = $_POST["nombre_corto"];
+        $datos_insert["descripcion"] = $_POST["descripcion"];
+        $datos_insert["PVP"] = $_POST["precio"];
+        $datos_insert["familia"] = $_POST["familia"];
+
+        $url = DIR_SERV ."/producto/insertar";
+        $respuesta = consumir_servicios_rest($url, "POST", $datos_insert);
+        $obj = json_decode($respuesta);
+
+        if (isset($obj->mensaje_error))
+            die(pag_error("CRUD - Servicios WEB", "Listado de productos", $obj->mensaje_error));
+        if (!$obj)
+            die(pag_error("CRUD - Servicios WEB", "Listado de productos", "Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+        else {
+            $_SESSION["mensaje_accion"] = "miaaaaau";
+
+            header("Location:index.php");
+            exit;
+        }
+
+
+    }
 }
 
 /********************************** EDITAR - CONFIRMAR ************************************/
@@ -56,9 +101,9 @@ if (isset($_POST["boton_confirmar_borrar"])) {
     $obj = json_decode($respuesta);
 
     if (isset($obj->mensaje_error))
-        die(pag_error("CRUD - Servicios WEB", "CRUD - Servicios WEB", "Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+        die(pag_error("CRUD - Servicios WEB", "CRUD - Servicios WEB", "Error consumiendo el servicio REST: " . $url . "</>" . $respuesta));
 
-    if (!$obj->producto)
+    if (!$obj)
         die(pag_error("CRUD - Servicios WEB", "CRUD - Servicios WEB",  "<p>El producto ya no se encuentra en la BD</p>"));
 
 
@@ -188,35 +233,72 @@ if (isset($_POST["boton_confirmar_borrar"])) {
             if (!$obj) {
                 echo "<p>Aún no existen familias</p>";
                 echo "<form action='index.php' method='post'>
-                    <button>Volver</button>
-                </form>";
+                        <button>Volver</button>
+                    </form>";
             } else {
 
         ?>
                 <form action='index.php' method='post'>
                     <p>
-                        <label for="codigo">Código</label>
-                        <input type="text" id="codigo" name="codigo" maxlength="12" value="<?php if(isset($_POST["codigo"])) echo $_POST["codigo"]  ?>"/>
-                        <?php if(isset($_POST["boton_confirmar_nuevo"]) && $error_codigo)
-                            echo "<span class='error'>* Campo vacío</span>"?>
+                        <label for="codigo">Código: </label>
+                        <input type="text" id="codigo" name="codigo" maxlength="12" value="<?php if (isset($_POST["codigo"])) echo $_POST["codigo"]  ?>" />
+                        <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_codigo) {
+                            if ($_POST["codigo"] == "")
+                                echo "<span class='error'>* Campo vacío</span>";
+                            else
+                                echo "<span class='error'>* Código repetido</span>";
+                        }
+                        ?>
+                    </p>
+
+                    <p>
+                        <label for="nombre">Nombre: </label>
+                        <input type="text" id="nombre" name="nombre" value="<?php if (isset($_POST["nombre"])) echo $_POST["nombre"]  ?>" />
+                    </p>
+
+                    <p>
+                        <label for="nombre_corto">Nombre corto: </label>
+                        <input type="text" id="nombre_corto" name="nombre_corto" value="<?php if (isset($_POST["nombre_corto"])) echo $_POST["nombre_corto"]  ?>" />
+                        <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_nombre_corto)
+                            echo "<span class='error'>* Campo vacío</span>" ?>
+                    </p>
+
+                    <p>
+                        <label for="descripcion">Descripción: </label>
+                        <textarea id="descripcion" name="descripcion"><?php if (isset($_POST["descripcion"])) echo $_POST["descripcion"]  ?></textarea>
+                        <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_descripcion)
+                            echo "<span class='error'>* Campo vacío</span>" ?>
+                    </p>
+
+                    <p>
+                        <label for="precio">Precio: </label>
+                        <input type="number" id="precio" name="precio" value="<?php if (isset($_POST["precio"])) echo $_POST["precio"]  ?>" />
+                        <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_precio) {
+                            if ($_POST["precio"] == "")
+                                echo "<span class='error'>* Campo vacío</span>";
+                            else
+                                echo "<span class='error'>* Precio inválido</span>";
+                        }
+                        ?>
                     </p>
                     <p>
-
-                    </p>
-
-                <?php
-                echo "<select name='familia' id='familia'>";
-                foreach ($obj->familias as $tupla) {
-                    echo "<option value='" . $tupla->codigo . "'>" . $tupla->nombre . "</option>";
+                        <label for="familia">Familia: </label>
+                    <?php
+                    echo "<select name='familia' id='familia'>";
+                    foreach ($obj->familias as $tupla) {
+                        if (isset($_POST["boton_confirmar_nuevo"]) && $_POST["familia"] == $tupla->cod)
+                            echo "<option value='" . $tupla->cod . "' selected>" . $tupla->nombre . "</option>";
+                        else
+                            echo "<option value='" . $tupla->cod . "'>" . $tupla->nombre . "</option>";
+                    }
+                    echo "</select></p>";
                 }
-                echo "</select>";
-            }
-                ?>
+                    ?>
 
-                <p>
-                    <button>Cancelar</button>
-                    <button name='boton_confirmar_nuevo'>Confirmar</button>
-                </p>
+                    <p>
+                        <button>Cancelar</button>
+                        <button name='boton_confirmar_nuevo'>Confirmar</button>
+                    </p>
 
                 </form>
 
