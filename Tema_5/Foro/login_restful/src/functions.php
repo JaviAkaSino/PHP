@@ -5,33 +5,66 @@
 
 // OBTENER TODOS LOS USUARIOS
 
-function obtener_usuarios(){
+function obtener_usuarios()
+{
 
     try {
-        
+
         $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-    
+
         try {
             $consulta = "SELECT * FROM usuarios";
             $sentencia = $conexion->prepare($consulta);
             $sentencia->execute();
 
             $respuesta["usuarios"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
 
-            $respuesta["error"] = "Imposible realizar la consulta. Error: ".$e->getMessage();
+            $respuesta["error"] = "Imposible realizar la consulta. Error: " . $e->getMessage();
         }
-
     } catch (PDOException $e) {
 
-        $respuesta["error"] = "Imposible conectar con la BD. Error: ".$e->getMessage();
+        $respuesta["error"] = "Imposible conectar con la BD. Error: " . $e->getMessage();
     }
 
     return $respuesta;
-
 }
 
+
+//INSERTAR NUEVO USUARIO
+
+function nuevo_usuario($datos)
+{
+
+    try {
+
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+    
+        try{
+
+            $consulta = "INSERT into usuarios (nombre, usuario, clave, email) VALUES (?, ?, ?, ?)";
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            $respuesta["ult_id"] = $conexion->lastInsertId();
+
+        }catch (PDOException $e){
+
+            $respuesta["error"] = "Imposible realizar la inserción. Error: " . $e->getMessage();
+        }
+
+        $sentencia = null;
+        $conexion = null;
+    
+    } catch (PDOException $e) {
+
+        $respuesta["error"] = "Imposible conectar con la BD. Error: " . $e->getMessage();
+    }
+
+
+    return $respuesta;
+}
 
 
 
@@ -256,7 +289,7 @@ function obtener_familia($cod)
 
             $sentencia = $conexion->prepare($consulta);
 
-            $datos[]=$cod;
+            $datos[] = $cod;
 
             $sentencia->execute($datos);
 
@@ -288,7 +321,7 @@ function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave 
                 $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . "= ? AND " . $columna_clave . " <> ?";
                 $datos[] = $valor_clave;
             } else {
-                $consulta = "SELECT * FROM ".$tabla." WHERE ".$columna." = ?";
+                $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . " = ?";
             }
 
             $sentencia = $conexion->prepare($consulta);

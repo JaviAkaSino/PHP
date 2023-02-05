@@ -34,7 +34,7 @@ function pag_error($title, $encabezado, $mensaje)
     </html>";
 }
 
-define("DIR_SERV", "http://localhost/PHP/Tema_5/Ejercicio1/servicios_rest");
+define("DIR_SERV", "http://localhost/PHP/Tema_5/Tienda/Ejercicio1/servicios_rest");
 
 
 /********************************** NUEVO - CONFIRMAR ************************************/
