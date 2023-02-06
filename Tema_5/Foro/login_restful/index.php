@@ -21,6 +21,7 @@ $app->post("/crearUsuario", function ($request) {
     $datos[] = $request->getParam("usuario");
     $datos[] = $request->getParam("clave");
     $datos[] = $request->getParam("email");
+    $datos[] = $request->getParam("tipo");
 
     echo json_encode(nuevo_usuario($datos));
 });
@@ -47,30 +48,15 @@ $app->put("/actualizarUsuario/{idUsuario}", function ($request) {
     $datos[] = $request->getParam("email");
     $datos[] = $request->getAttribute("idUsuario");
     
-    echo json_encode(nuevo_usuario($datos));
+    echo json_encode(editar_usuario($datos));
 });
 
 //ELIMINAR USUARIO
 
+$app->delete("/borrarUsuario/{idUsuario}", function ($request){
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    echo json_encode(borrar_usuario($request->getAttribute("idUsuario")));
+});
 
 
 

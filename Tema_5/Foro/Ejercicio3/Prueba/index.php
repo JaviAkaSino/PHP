@@ -50,7 +50,7 @@ define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/login_restful");
 
     <?php
 
-    //LISTA PRODUCTOS
+    //LISTA USUARIO
 
     $url = DIR_SERV . "/usuarios";
 
@@ -65,15 +65,53 @@ define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/login_restful");
     if (isset($obj->error))
         die("<p>" . $obj->error . "</p></body></html>");
 
-    foreach ($obj->usuarios as $tupla){
+    foreach ($obj->usuarios as $tupla) {
 
-        echo "<p>".$tupla->nombre."</p>";
+        echo "<p>" . $tupla->nombre . "</p>";
     }
 
 
+    //NUEVO USUARIO
 
 
+    $url = DIR_SERV . "/crearUsuario";
 
+    $datos_insert["nombre"] = "PEPE";
+    $datos_insert["usuario"] = "PEPE";
+    $datos_insert["clave"] = "PEPE";
+    $datos_insert["email"] = "PEPE@PEPE.ES";
+    $datos_insert["tipo"] = "normal";
+
+    $respuesta = consumir_servicios_rest($url, "POST", $datos_insert);
+
+    $obj = json_decode($respuesta);
+
+    if (!$obj) //Problema con los servicios
+        die("<p>Error al consumir los servicios: " . $url . "</p>" . $respuesta . "</body></html>");
+
+    if (isset($obj->error)) //BD
+        die("<p>" . $obj->error . "</p></body></html>");
+
+    echo "<p> USUARIO INSERTADO: ".$obj->ult_id."</p>";
+
+    $ultimo = $obj->ult_id;
+
+
+    //BORRAR USUARIO
+
+    $url = DIR_SERV . "/borrarUsuario/".$ultimo;
+
+    $respuesta = consumir_servicios_rest($url, "DELETE");
+
+    $obj = json_decode($respuesta);
+
+    if (!$obj) //Problema con los servicios
+        die("<p>Error al consumir los servicios: " . $url . "</p>" . $respuesta . "</body></html>");
+
+    if (isset($obj->error)) //BD
+        die("<p>" . $obj->error . "</p></body></html>");
+
+    echo "<p>".$obj->mensaje."</p>";
     ?>
 
 </body>
