@@ -39,8 +39,8 @@ function nuevo_usuario($datos)
     try {
 
         $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
-    
-        try{
+
+        try {
 
             $consulta = "INSERT into usuarios (nombre, usuario, clave, email) VALUES (?, ?, ?, ?)";
 
@@ -48,15 +48,13 @@ function nuevo_usuario($datos)
             $sentencia->execute($datos);
 
             $respuesta["ult_id"] = $conexion->lastInsertId();
-
-        }catch (PDOException $e){
+        } catch (PDOException $e) {
 
             $respuesta["error"] = "Imposible realizar la inserción. Error: " . $e->getMessage();
         }
 
         $sentencia = null;
         $conexion = null;
-    
     } catch (PDOException $e) {
 
         $respuesta["error"] = "Imposible conectar con la BD. Error: " . $e->getMessage();
@@ -66,7 +64,35 @@ function nuevo_usuario($datos)
     return $respuesta;
 }
 
+// LOGIN
 
+function login($datos)
+{
+
+    try {
+
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+            $consulta = "SELECT * FROM usuarios WHERE usuario = ? AND clave = ?";
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            if ($sentencia->rowCount() > 0)
+                $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+            else
+                $respuesta["mensaje"] = "Usuario y/o constraseña no válido/s";
+        } catch (PDOException $e) {
+
+            $respuesta["error"] = "Imposible realizar la consulta. Error: " . $e->getMessage();
+        }
+    } catch (PDOException $e) {
+
+        $respuesta["error"] = "Imposible conectar con la BD. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
 
 
 
