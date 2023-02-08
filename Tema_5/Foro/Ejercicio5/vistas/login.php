@@ -32,6 +32,7 @@ if (isset($_POST["boton_login"])) {
             $_SESSION["usuario"] = $datos_login["usuario"];
             $_SESSION["clave"] = $datos_login["clave"];
             $_SESSION["ultimo_acceso"] = time();
+            $_SESSION["api_session"] = $obj->api_session; //Protección
 
             header("Location:index.php");
             exit;
@@ -86,7 +87,7 @@ if (isset($_POST["boton_login"])) {
     <?php
     if (isset($_SESSION["seguridad"])) {
         echo "<p class='error'>" . $_SESSION["seguridad"] . "</p>";
-        unset($_SESSION["seguridad"]);
+        session_destroy();
     }
     ?>
 
