@@ -52,7 +52,7 @@ $app->post("/login", function ($request) {
     $datos[] = $request->getParam("usuario");
     $datos[] = $request->getParam("clave");
 
-    echo json_encode(login($datos));
+    echo json_encode(login($datos, true));
 });
 
 //LOGEADO 
@@ -64,8 +64,8 @@ $app->post("/logueado", function ($request) {
     session_start();
     if (isset($_SESSION["tipo"])) {
 
-        $datos[] = $request->getParam("usuario");
-        $datos[] = $request->getParam("clave");
+        $datos[] = $_SESSION["usuario"];
+        $datos[] = $_SESSION["clave"];
 
         echo json_encode(login($datos, false));
     } else {

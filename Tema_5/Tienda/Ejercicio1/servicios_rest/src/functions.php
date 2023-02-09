@@ -1,5 +1,52 @@
 <?php
 
+//LOGIN
+
+
+function login($datos, $in_login = true)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "SELECT * FROM usuarios WHERE usuario = ? AND clave = ?";
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+            if ($sentencia->rowCount() > 0) {
+                $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+                if ($in_login) {
+
+                    session_name("api_tienda");
+                    session_start();
+                    $_SESSION["usuario"] = $datos[0];
+                    $_SESSION["clave"] = $datos[1];
+                    $_SESSION["tipo"] = $respuesta["usuario"]["tipo"]; //Aun es un array assoc
+                    $respuesta["api_session"] = session_id();
+                }
+            } else {
+
+                $respuesta["mensaje"] = "Usuario no registrado en la BD";
+            }
+        } catch (PDOException $e) {
+
+            $respuesta["mensaje_error"] = "Imposible realizar la consulta. Error: " . $e->getMessage();
+        }
+
+        $sentencia = null;
+        $conexion = null;
+    } catch (PDOException $e) {
+        $respuesta["mensaje_error"] = "Imposible conectar. Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+
+
+
 //LISTA TODOS LOS PRODUCTOS
 function obtener_productos()
 {
@@ -197,7 +244,7 @@ function obtener_familia($cod)
 
             $sentencia = $conexion->prepare($consulta);
 
-            $datos[]=$cod;
+            $datos[] = $cod;
 
             $sentencia->execute($datos);
 
@@ -229,7 +276,7 @@ function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave 
                 $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . "= ? AND " . $columna_clave . " <> ?";
                 $datos[] = $valor_clave;
             } else {
-                $consulta = "SELECT * FROM ".$tabla." WHERE ".$columna." = ?";
+                $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . " = ?";
             }
 
             $sentencia = $conexion->prepare($consulta);

@@ -24,7 +24,7 @@ if (isset($_SESSION["api_session"]) && isset($_SESSION["usuario"]) && isset($_SE
     
     if($datos_usuario_log->tipo == "admin"){
 
-
+        require "vistas/admin.php";
     } else {
 
         require "vistas/normal.php";
