@@ -5,7 +5,7 @@ session_name("login_foro");
 session_start();
 
 define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/Ejercicio3_key/login_restful");
-define("MINUTOS", 3);
+define("MINUTOS", 10);
 
 if (isset($_POST["boton_salir"])){
     $datos_salir["api_session"] = $_SESSION["api_session"];

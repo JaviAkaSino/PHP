@@ -31,6 +31,36 @@ function obtener_usuarios()
 }
 
 
+//DATOS DE UN USUARIO 
+
+function datos_usuario($id)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "SELECT * FROM usuarios WHERE id_usuario = ?";
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute([$id]);
+
+            if ($sentencia->rowCount() > 0)
+                $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
+            else
+                $respuesta["mensaje"] = "El usuario " . $id . " ya no está en la BD";
+        } catch (PDOException $e) {
+
+            $respuesta["error"] == "Error: " . $e->getMessage();
+        }
+    } catch (PDOException $e) {
+
+        $respuesta["error"] == "Error: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
 //INSERTAR NUEVO USUARIO
 
 function nuevo_usuario($datos)
@@ -42,7 +72,7 @@ function nuevo_usuario($datos)
 
         try {
 
-            $consulta = "INSERT into usuarios (nombre, usuario, clave, email, tipo) VALUES (?, ?, ?, ?, ?)";
+            $consulta = "INSERT into usuarios (nombre, usuario, clave, email) VALUES (?, ?, ?, ?)";
 
             $sentencia = $conexion->prepare($consulta);
             $sentencia->execute($datos);
@@ -130,7 +160,7 @@ function editar_usuario($datos)
             $sentencia = $conexion->prepare($consulta);
             $sentencia->execute($datos);
 
-            $respuesta["mensaje"] = "El usuario " . end($datos) . " ha sido borrado con éxito";
+            $respuesta["mensaje"] = "El usuario " . end($datos) . " ha sido editado con éxito";
         } catch (PDOException $e) {
 
             $respuesta["error"] = "Imposible realizar la consulta. Error: " . $e->getMessage();
@@ -180,28 +210,7 @@ function borrar_usuario($id)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//REPETIDO INSERT
+//REPETIDO
 function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave = null)
 {
     try {
@@ -211,7 +220,7 @@ function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave 
 
             $datos[] = $valor;
 
-            if (isset($_POST[$columna_clave])) {
+            if (isset($columna_clave)) {
                 $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . "= ? AND " . $columna_clave . " <> ?";
                 $datos[] = $valor_clave;
             } else {

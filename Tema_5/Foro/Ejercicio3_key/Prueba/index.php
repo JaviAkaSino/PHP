@@ -33,7 +33,7 @@ function pag_error($titulo, $cabecera, $mensaje)
     </html>';
 }
 
-define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/Rlogin_restful");
+define("DIR_SERV", "http://localhost/PHP/Tema_5/FORO/Ejercicio3_key/login_restful");
 
 ?>
 <!DOCTYPE html>
@@ -62,8 +62,9 @@ define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/Rlogin_restful");
         die("<p>Error al consumir el servicio REST: " . $url . "</p>" . $respuesta . " </body></html>");
     }
 
-    if (isset($obj->error))
+    if (isset($obj->error)) {
         die("<p>" . $obj->error . "</p></body></html>");
+    }
 
     foreach ($obj->usuarios as $tupla) {
 
@@ -92,14 +93,14 @@ define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/Rlogin_restful");
     if (isset($obj->error)) //BD
         die("<p>" . $obj->error . "</p></body></html>");
 
-    echo "<p> USUARIO INSERTADO: ".$obj->ult_id."</p>";
+    echo "<p> USUARIO INSERTADO: " . $obj->ult_id . "</p>";
 
     $ultimo = $obj->ult_id;
 
 
     //BORRAR USUARIO
 
-    $url = DIR_SERV . "/borrarUsuario/".$ultimo;
+    $url = DIR_SERV . "/borrarUsuario/" . $ultimo;
 
     $respuesta = consumir_servicios_rest($url, "DELETE");
 
@@ -111,7 +112,7 @@ define("DIR_SERV", "http://localhost/PHP/Tema_5/Foro/Rlogin_restful");
     if (isset($obj->error)) //BD
         die("<p>" . $obj->error . "</p></body></html>");
 
-    echo "<p>".$obj->mensaje."</p>";
+    echo "<p>" . $obj->mensaje . "</p>";
     ?>
 
 </body>
