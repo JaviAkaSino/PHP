@@ -19,19 +19,18 @@ if (!$obj) { //Fallo servicio
 if (isset($obj->error)) { //Falla algo de la BD
     $url = DIR_SERV . "/salir"; //SALIR - Borrar la api_session
     $respuesta = consumir_servicios_rest($url, "POST", $key);
-    
+
     session_destroy();
     die(pag_error("Problema con la BD. Error: " . $obj->error));
 }
 
 //Tiempo de sesión de la API por defecto es 24 min, si el nuestro es superior puede salirse, informar
-if (isset($obj->no_login)){ //Se cierra la sesión en la API
+if (isset($obj->no_login)) { //Se cierra la sesión en la API
 
     session_unset();
     $_SESSION["seguridad"] = "El tiempo de sesión de la API ha expirado";
     header("Location:index.php");
     exit;
-
 }
 
 

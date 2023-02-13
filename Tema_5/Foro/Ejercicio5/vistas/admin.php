@@ -108,6 +108,115 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
     }
 }
 
+/************************************* CONFIRMA EDITAR ***********************************/
+if (isset($_POST["boton_confirmar_editar"])) {
+
+    $error_nombre = $_POST["nombre"] == "";
+    $error_usuario = $_POST["usuario"] == "";
+    $error_email = $_POST["email"] == "" || !filter_var($_POST["email"], FILTER_VALIDATE_EMAIL);
+
+    if (!$error_usuario) {
+        $url = DIR_SERV . "/repetido_edit/usuarios/usuario/" . urlencode($_POST["usuario"]) . "/id_usuario/" . urlencode($_POST["boton_confirmar_editar"]);
+        $respuesta = consumir_servicios_rest($url, "GET", $key);
+        $obj = json_decode($respuesta);
+
+        if (!$obj) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url_salir, "POST", $key);
+            session_destroy();
+            die(pag_error("Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+        }
+
+        if (isset($obj->mensaje_error)) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url_salir, "POST", $key);
+            session_destroy();
+            die(pag_error($obj->mensaje_error));
+        }
+
+        if (isset($obj->no_login)) {
+            session_unset();
+            $_SESSION["seguridad"] = "El tiempo de sesión de la API ha expirado.";
+            header("Location:index.php");
+            exit;
+        }
+
+        $error_usuario = $obj->repetido;
+    }
+
+    if (!$error_email) {
+
+        $url = DIR_SERV . "/repetido_edit/usuarios/email/" . urlencode($_POST["email"]) . "/id_usuario/" . urlencode($_POST["boton_confirmar_editar"]);
+        $respuesta = consumir_servicios_rest($url, "GET", $key);
+        $obj = json_decode($respuesta);
+
+        if (!$obj) {
+            $url = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $key);
+            session_destroy();
+            die(pag_error("Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+        }
+
+        if (isset($obj->error)) {
+            $url = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $key);
+            session_destroy();
+            die(pag_error($obj->error));
+        }
+
+        if (isset($obj->no_login)) {
+            session_unset();
+            $_SESSION["seguridad"] = "El tiempo de sesión de la API ha expirado.";
+            header("Location:index.php");
+            exit;
+        }
+
+        $error_email = $obj->repetido;
+    }
+
+    $error_form = $error_nombre || $error_usuario  || $error_email;
+
+    if (!$error_form) {
+
+        $datos_update["nombre"] = $_POST["nombre"];
+        $datos_update["usuario"] = $_POST["usuario"];
+        if ($_POST["clave"] == "")
+            $datos_update["clave"] = $_SESSION["clave"];
+        else
+            $datos_update["clave"] = md5($_POST["clave"]);
+        $datos_update["email"] = $_POST["email"];
+        $datos_update["api_session"] = $_SESSION["api_session"]; //$key
+
+        $url = DIR_SERV . "/actualizarUsuario/" . $_POST["boton_confirmar_editar"];
+        $respuesta = consumir_servicios_rest($url, "PUT", $datos_update);
+        $obj = json_decode($respuesta);
+
+        if (!$obj) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url_salir, "POST", $key);
+            session_destroy();
+            die(pag_error("Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+        }
+
+        if (isset($obj->error)) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url_salir, "POST", $key);
+            session_destroy();
+            die(pag_error($obj->error));
+        }
+
+        if (isset($obj->no_login)) {
+            session_unset();
+            $_SESSION["seguridad"] = "El tiempo de sesión de la API ha expirado.";
+            header("Location:index.php");
+            exit;
+        }
+
+        $_SESSION["mensaje_accion"] = $obj->mensaje;
+        header("Location:index.php");
+        exit;
+    }
+}
 
 
 /************************************* CONFIRMA BORRAR ***********************************/
@@ -206,6 +315,12 @@ if (isset($_POST["boton_confirmar_borrar"])) {
 
         require "admin/nuevo.php";
     }
+
+    if (isset($_POST["boton_editar"]) || (isset($_POST["boton_confirmar_editar"]) && $error_form)) {
+
+        require "admin/editar.php";
+    }
+
 
     if (isset($_POST["boton_borrar"])) {
 
