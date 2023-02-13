@@ -149,7 +149,7 @@ $app->delete("/borrarUsuario/{idUsuario}", function ($request) {
 
 $app->get("/repetido_insert/{tabla}/{columna}/{valor}" , function($request){
 
-    session_id($request);
+    session_id($request->getParam('api_session'));
     session_start();
     if(isset($_SESSION["tipo"]) && $_SESSION["tipo"]=="admin")  
     {

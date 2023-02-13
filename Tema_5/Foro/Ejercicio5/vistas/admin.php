@@ -1,8 +1,8 @@
 <?php
 
-/*************************************CONFIRMA NUEVO***********************************/
+/************************************* CONFIRMA NUEVO ***********************************/
 if (isset($_POST["boton_confirmar_nuevo"])) {
-    
+
     $error_nombre = $_POST["nombre"] == "";
     $error_usuario = $_POST["usuario"] == "";
     $error_clave = $_POST["clave"] == "";
@@ -50,11 +50,11 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
             die(pag_error("Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
         }
 
-        if (isset($obj->mensaje_error)) {
+        if (isset($obj->error)) {
             $url = DIR_SERV . "/salir";
             consumir_servicios_rest($url, "POST", $key);
             session_destroy();
-            die(pag_error($obj->mensaje_error));
+            die(pag_error($obj->error));
         }
 
         if (isset($obj->no_login)) {
@@ -71,8 +71,76 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
 
     if (!$error_form) {
 
-        echo "POR AQUI";
+        $datos_insert["nombre"] = $_POST["nombre"];
+        $datos_insert["usuario"] = $_POST["usuario"];
+        $datos_insert["clave"] = md5($_POST["clave"]);
+        $datos_insert["email"] = $_POST["email"];
+        $datos_insert["api_session"] = $_SESSION["api_session"]; //$key
+
+        $url = DIR_SERV . "/crearUsuario";
+        $respuesta = consumir_servicios_rest($url, "POST", $datos_insert);
+        $obj = json_decode($respuesta);
+
+        if (!$obj) {
+            $url = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $key);
+            session_destroy();
+            die(pag_error("Error consumiendo el servicio REST: " . $url . "</p>" . $respuesta));
+        }
+
+        if (isset($obj->error)) {
+            $url = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $key);
+            session_destroy();
+            die(pag_error($obj->error));
+        }
+
+        if (isset($obj->no_login)) {
+            session_unset();
+            $_SESSION["seguridad"] = "El tiempo de sesión de la API ha expirado.";
+            header("Location:index.php");
+            exit;
+        }
+
+        $_SESSION["mensaje_accion"] = "El usuario " . $obj->ult_id . " ha sido insertado con éxito";
+        header("Location:index.php");
+        exit;
     }
+}
+
+
+
+/************************************* CONFIRMA BORRAR ***********************************/
+if (isset($_POST["boton_confirmar_borrar"])) {
+
+    $url = DIR_SERV . "/borrarUsuario/" . $_POST["boton_confirmar_borrar"];
+    $respuesta = consumir_servicios_rest($url, "DELETE", $key);
+    $obj = json_decode($respuesta);
+
+    if (!$obj) {
+        $url = DIR_SERV . "/salir";
+        $respuesta = consumir_servicios_rest($url, "post", $key);
+        session_destroy();
+        die("<p>Error consumiendo el servicio: " . $url . "</p>" . $respuesta . "</body></html>");
+    }
+
+    if (isset($obj->error)) {
+        $url = DIR_SERV . "/salir";
+        $respuesta = consumir_servicios_rest($url, "post", $key);
+        session_destroy();
+        die("<p>" . $obj->error . "</p></body></html>");
+    }
+
+    if (isset($obj->no_login)) {
+        session_unset();
+        $_SESSION["seguridad"] = "El tiempo de sesión de la API ha expirado.";
+        header("Location:index.php");
+        exit;
+    }
+
+    $_SESSION["mensaje_accion"] = $obj->mensaje;
+    header("Location:index.php");
+    exit;
 }
 
 
@@ -96,6 +164,18 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
             text-decoration: underline;
             color: #FF600A;
             cursor: pointer;
+            font-weight: bold;
+        }
+
+        table,
+        td,
+        th {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #FFA817;
         }
     </style>
     <title>Normal Servicios Web</title>
@@ -112,6 +192,10 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
 
     <?php
 
+    if (isset($_SESSION["mensaje_accion"])) {
+        echo "<p>" . $_SESSION["mensaje_accion"] . "</p>";
+        unset($_SESSION["mensaje_accion"]);
+    }
 
     if (isset($_POST["boton_usuario"])) {
 
@@ -121,6 +205,11 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
     if (isset($_POST["boton_nuevo"]) || (isset($_POST["boton_confirmar_nuevo"]) && $error_form)) {
 
         require "admin/nuevo.php";
+    }
+
+    if (isset($_POST["boton_borrar"])) {
+
+        require "admin/borrar.php";
     }
 
     ?>
@@ -156,7 +245,7 @@ if (isset($_POST["boton_confirmar_nuevo"])) {
     foreach ($obj->usuarios as $tupla) {
         if ($tupla->tipo == "normal") {
             echo "<tr>";
-            echo "<td>" . $tupla->id_usuario . "</td>";
+            echo "<th>" . $tupla->id_usuario . "</th>";
             echo "<td><form action='index.php' method='post'><button name='boton_usuario' value='" . $tupla->id_usuario . "' class='enlace'>" . $tupla->nombre . "</button></form></td>";
             echo "<td>
             <form action='index.php' method='post'>
