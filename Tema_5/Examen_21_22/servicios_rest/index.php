@@ -17,6 +17,15 @@ $app->get('/conexion_MYSQLI',function($request){
     echo json_encode( conexion_mysqli(), JSON_FORCE_OBJECT);
 });
 
+// Login
+
+$app->post("/login", function($request){
+
+    $datos[] = $request->getParam("usuario");
+    $datos[] = $request->getParam("clave");
+
+echo json_encode(login($datos));
+});
 
 
 // Una vez creado servicios los pongo a disposición
