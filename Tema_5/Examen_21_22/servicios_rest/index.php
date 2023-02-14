@@ -3,31 +3,38 @@
 require "src/funciones_servicios.php";
 require __DIR__ . '/Slim/autoload.php';
 
-$app= new \Slim\App;
+$app = new \Slim\App;
 
 
 
-$app->get('/conexion_PDO',function($request){
+$app->get('/conexion_PDO', function ($request) {
 
-    echo json_encode( conexion_pdo(), JSON_FORCE_OBJECT);
+    echo json_encode(conexion_pdo(), JSON_FORCE_OBJECT);
 });
 
-$app->get('/conexion_MYSQLI',function($request){
-    
-    echo json_encode( conexion_mysqli(), JSON_FORCE_OBJECT);
+$app->get('/conexion_MYSQLI', function ($request) {
+
+    echo json_encode(conexion_mysqli(), JSON_FORCE_OBJECT);
 });
 
-// Login
+// LOGIN
 
-$app->post("/login", function($request){
+$app->post("/login", function ($request) {
 
     $datos[] = $request->getParam("usuario");
     $datos[] = $request->getParam("clave");
 
-echo json_encode(login($datos));
+    echo json_encode(login($datos));
+});
+
+
+//OBTENER HORARIO USUARIO
+
+$app->get("/horario/{id_usuario}" , function ($request){
+
+    echo json_encode(horario($request->getAttribute("id_usuario")));
 });
 
 
 // Una vez creado servicios los pongo a disposición
 $app->run();
-?>

@@ -31,6 +31,10 @@ function conexion_mysqli()
     return $respuesta;
 }
 
+
+// LOGIN
+
+
 function login($datos)
 {
     try{
@@ -61,4 +65,36 @@ function login($datos)
     }
     return $respuesta;
 }
-?>
+
+//HORARIO
+
+function horario($id){
+
+    try{
+        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));        
+
+        try{
+
+            $consulta = "SELECT horario_lectivo.dia, horario_lectivo.hora, grupos.nombre AS grupo
+                            FROM horario_lectivo 
+                            JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo
+                            WHERE horario_lectivo.usuario = ?"; 
+
+            $sentencia = $conexion->prepare($consulta);
+            $datos_horario[] = $id;
+            $sentencia->execute($datos_horario);
+
+            $respuesta["horario"]= $sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e){
+
+            $respuesta["error"] = "Error al realizar consulta: ". $e->getMessage();
+        }
+
+    } catch (PDOException $e){
+        $respuesta["error"] = "Error al conectar: " . $e->getMessage();
+    }
+
+    return $respuesta;
+ 
+}
