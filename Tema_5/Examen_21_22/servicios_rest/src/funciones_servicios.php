@@ -98,3 +98,121 @@ function horario($id){
     return $respuesta;
  
 }
+
+
+function usuarios(){
+
+    try{
+        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));        
+
+        try{
+            $consulta = "SELECT * FROM usuarios WHERE tipo = 'normal'";
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute();
+
+            $respuesta["usuarios"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e){
+    
+            $respuesta["error"] = "Error al realizar consulta: ".$e->getMessage();
+        }
+    } catch (PDOException $e){
+
+        $respuesta["error"] = "Error al conectar a la BD: ". $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+
+function tieneGrupo($datos){
+
+    try{
+        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));        
+
+        try{
+            $consulta = "SELECT * FROM horario_lectivo
+                            WHERE usuario = ? AND dia = ? AND hora = ? AND grupo = ?";
+            
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            $respuesta["tiene_grupo"] = $sentencia->rowCount() > 0;
+
+        } catch (PDOException $e){
+    
+            $respuesta["error"] = "Error al realizar consulta: ".$e->getMessage();
+        }
+    } catch (PDOException $e){
+
+        $respuesta["error"] = "Error al conectar a la BD: ". $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+
+
+function grupos($datos){
+
+    try{
+        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));        
+
+        try{
+            $consulta = "SELECT grupos.id_grupo, grupos.nombre  
+                            FROM grupos
+                            JOIN horario_lectivo ON horario_lectivo.grupo = grupos.id_grupo
+                            WHERE usuario = ? AND dia = ? AND hora = ?";
+            
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            $respuesta["grupos"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e){
+    
+            $respuesta["error"] = "Error al realizar consulta: ".$e->getMessage();
+        }
+    } catch (PDOException $e){
+
+        $respuesta["error"] = "Error al conectar a la BD: ". $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+
+function gruposLibres($datos){
+
+    try{
+        $conexion= new PDO("mysql:host=".SERVIDOR_BD.";dbname=".NOMBRE_BD,USUARIO_BD,CLAVE_BD,array(PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES 'utf8'"));        
+
+        try{
+            $consulta = "SELECT id_grupo, nombre
+                            FROM grupos
+                            WHERE id_grupo
+                            NOT IN (
+                                SELECT grupos.id_grupo
+                                FROM grupos
+                                JOIN horario_lectivo ON horario_lectivo.grupo = grupos.id_grupo
+                                WHERE usuario = ? AND dia = ? AND hora = ?)";
+            
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            $respuesta["grupos_libres"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e){
+    
+            $respuesta["error"] = "Error al realizar consulta: ".$e->getMessage();
+        }
+    } catch (PDOException $e){
+
+        $respuesta["error"] = "Error al conectar a la BD: ". $e->getMessage();
+    }
+
+    return $respuesta;
+}

@@ -30,9 +30,50 @@ $app->post("/login", function ($request) {
 
 //OBTENER HORARIO USUARIO
 
-$app->get("/horario/{id_usuario}" , function ($request){
+$app->get("/horario/{id_usuario}", function ($request) {
 
     echo json_encode(horario($request->getAttribute("id_usuario")));
+});
+
+//USUARIOS NO ADMIN
+
+$app->get("/usuarios", function () {
+
+    echo json_encode(usuarios());
+});
+
+//TIENE GRUPO
+
+$app->get("/tieneGrupo/{dia}/{hora}/{id_usuario}", function ($request) {
+
+    $datos[] = $request->getAttribute("id_usuario");
+    $datos[] = $request->getAttribute("dia");
+    $datos[] = $request->getAttribute("hora");
+    $datos[] = $request->getParam("grupo");
+
+    echo json_encode(tieneGrupo($datos));
+});
+
+//QUE GRUPOS TIENE
+
+$app->get("/grupos/{dia}/{hora}/{id_usuario}", function ($request) {
+
+    $datos[] = $request->getAttribute("id_usuario");
+    $datos[] = $request->getAttribute("dia");
+    $datos[] = $request->getAttribute("hora");
+    
+    echo json_encode(grupos($datos));
+});
+
+//GRUPOS QUE NO
+
+$app->get("/gruposLibres/{dia}/{hora}/{id_usuario}", function ($request) {
+
+    $datos[] = $request->getAttribute("id_usuario");
+    $datos[] = $request->getAttribute("dia");
+    $datos[] = $request->getAttribute("hora");
+    
+    echo json_encode(gruposLibres($datos));
 });
 
 
