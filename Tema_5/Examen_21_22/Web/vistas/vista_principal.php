@@ -20,10 +20,29 @@ if (isset($_POST["quitar_grupo"])) {
     }
 
     $_SESSION["mensaje_accion"] = $obj->mensaje;
-}
+}   
 
 
 if (isset($_POST["add_grupo"])) {
+
+    $url = DIR_SERV . "/insertarGrupo/" . $_POST["dia"] . "/" . $_POST["hora"] . "/" . $_POST["profesores"] . "/" . $_POST["grupos_libres"];
+    $respuesta = consumir_servicios_rest($url, "POST");
+    $obj = json_decode($respuesta);
+
+    if (!$obj) {
+        session_destroy();
+        die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>Error consumiendo el servicio: " . $url . "</p>" . $respuesta));
+    }
+
+    if (isset($obj->error)) {
+        session_destroy();
+        die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>" . $obj->error . "</p>"));
+    }
+
+    if (isset($obj->no_login)) {
+    }
+
+    $_SESSION["mensaje_accion"] = $obj->mensaje;
 }
 
 
@@ -107,7 +126,7 @@ if (isset($_POST["add_grupo"])) {
     echo "<button name='ver_horario'>Ver Horario</button>";
     echo "</form>";
 
-    if (isset($_POST["ver_horario"]) || isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"])) { //Cuando se pulse ver horario
+    if (isset($_POST["ver_horario"]) || isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"]) || isset($_POST["add_grupo"])) { //Cuando se pulse ver horario
 
         //SACAMOS SU HORARIO
         $url = DIR_SERV . "/horario/" . $_POST["profesores"];
@@ -199,7 +218,7 @@ if (isset($_POST["add_grupo"])) {
         echo "</table>";
 
 
-        if (isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"])) {
+        if (isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"]) || isset($_POST["add_grupo"])) {
 
             // SACAMOS LOS GRUPOS
 

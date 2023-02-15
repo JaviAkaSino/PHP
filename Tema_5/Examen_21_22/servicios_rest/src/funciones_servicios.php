@@ -268,7 +268,7 @@ function insertarGrupo($datos){
             $sentencia = $conexion->prepare($consulta);
             $sentencia->execute($datos);
 
-            $respuesta["mensaje"] = "Grupo borrado con éxito";
+            $respuesta["mensaje"] = "Grupo insertado con éxito";
         } catch (PDOException $e) {
 
             $respuesta["error"] = "Error al realizar consulta: " . $e->getMessage();
