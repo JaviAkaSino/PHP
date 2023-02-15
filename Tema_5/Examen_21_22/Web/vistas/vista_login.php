@@ -30,6 +30,9 @@ if(isset($_POST["btnLogin"]))
             $_SESSION["usuario"]=$datos_login["usuario"];
             $_SESSION["clave"]=$datos_login["clave"];
             $_SESSION["ultimo_acceso"]=time();
+
+            $_SESSION["api_session"]["api_session"] = $obj->api_session;
+
             header("Location:index.php");
             exit;
         }

@@ -27,6 +27,24 @@ $app->post("/login", function ($request) {
     echo json_encode(login($datos));
 });
 
+//LOGEADO
+
+$app->post("/logueado", function ($request){
+
+    session_id($request->getParam("api_session"));
+    session_start();
+    if(isset($_SESSION["tipo"])){
+
+        $datos[]=$_SESSION["usuario"];
+        $datos[]=$_SESSION["clave"];
+        echo json_encode(login($datos, false));
+    } else {
+
+        session_destroy();
+        echo json_encode(array("no_login"=>"No está logeado"));
+    }
+});
+
 
 //OBTENER HORARIO USUARIO
 
@@ -75,6 +93,32 @@ $app->get("/gruposLibres/{dia}/{hora}/{id_usuario}", function ($request) {
     
     echo json_encode(gruposLibres($datos));
 });
+
+
+//BORRAR GRUPO
+
+$app->delete("/borrarGrupo/{dia}/{hora}/{id_usuario}/{id_grupo}", function($request){
+
+    $datos[] = $request->getAttribute("id_usuario");
+    $datos[] = $request->getAttribute("dia");
+    $datos[] = $request->getAttribute("hora");
+    $datos[] = $request->getAttribute("id_grupo");
+
+    echo json_encode(borrarGrupo($datos));
+});
+
+//AÑADIR GRUPO
+
+$app->post("/insertarGrupo/{dia}/{hora}/{id_usuario}/{id_grupo}", function($request){
+
+    $datos[] = $request->getAttribute("id_usuario");
+    $datos[] = $request->getAttribute("dia");
+    $datos[] = $request->getAttribute("hora");
+    $datos[] = $request->getAttribute("id_grupo");
+
+    echo json_encode(insertarGrupo($datos));
+});
+
 
 
 // Una vez creado servicios los pongo a disposición

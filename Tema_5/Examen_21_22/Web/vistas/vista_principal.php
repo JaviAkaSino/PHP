@@ -1,3 +1,34 @@
+<?php
+
+if (isset($_POST["quitar_grupo"])) {
+
+    $url = DIR_SERV . "/borrarGrupo/" . $_POST["dia"] . "/" . $_POST["hora"] . "/" . $_POST["profesores"] . "/" . $_POST["quitar_grupo"];
+    $respuesta = consumir_servicios_rest($url, "DELETE");
+    $obj = json_decode($respuesta);
+
+    if (!$obj) {
+        session_destroy();
+        die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>Error consumiendo el servicio: " . $url . "</p>" . $respuesta));
+    }
+
+    if (isset($obj->error)) {
+        session_destroy();
+        die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>" . $obj->error . "</p>"));
+    }
+
+    if (isset($obj->no_login)) {
+    }
+
+    $_SESSION["mensaje_accion"] = $obj->mensaje;
+}
+
+
+if (isset($_POST["add_grupo"])) {
+}
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -76,7 +107,7 @@
     echo "<button name='ver_horario'>Ver Horario</button>";
     echo "</form>";
 
-    if (isset($_POST["ver_horario"]) || isset($_POST["editar_hora"])) { //Cuando se pulse ver horario
+    if (isset($_POST["ver_horario"]) || isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"])) { //Cuando se pulse ver horario
 
         //SACAMOS SU HORARIO
         $url = DIR_SERV . "/horario/" . $_POST["profesores"];
@@ -168,7 +199,7 @@
         echo "</table>";
 
 
-        if (isset($_POST["editar_hora"])) {
+        if (isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"])) {
 
             // SACAMOS LOS GRUPOS
 
@@ -186,7 +217,7 @@
                 die("<p>Error en la BD: " . $obj->error);
             }
 
-            
+
 
             //Si todo OK TABLA
             $numero_hora =  $_POST["hora"];
@@ -194,23 +225,25 @@
                 $numero_hora -= 1;
 
             echo "<h2>Editando la " . $numero_hora . "ª hora (" . $horas[$_POST["hora"]] . ") del " . $dias[$_POST["dia"]] . "</h2>";
-        
-            if(isset($_SESSION["mensaje_accion"])){
 
-                echo "<p>".$_SESSION["mensaje_accion"]."</p>";
-                
+            if (isset($_SESSION["mensaje_accion"])) {
+
+                echo "<p>" . $_SESSION["mensaje_accion"] . "</p>";
             }
-                
+
 
             echo "<table>
                     <tr><th>Grupo</th><th>Acción</th></tr>";
 
             foreach ($obj->grupos as $tupla) {
                 echo "<tr>
-                        <td>".$tupla->nombre."</td>
+                        <td>" . $tupla->nombre . "</td>
                         <td>
                             <form method='post' action='index.php'>
-                                <button name='quitar_grupo' value='".$tupla->id_grupo."' class='enlace'>Quitar</button>
+                                <button name='quitar_grupo' value='" . $tupla->id_grupo . "' class='enlace'>Quitar</button>
+                                <input type='hidden' name='dia' value='" . $_POST["dia"] . "'/>
+                                <input type='hidden' name='hora' value='" . $_POST["hora"] . "'/>
+                                <input type='hidden' name='profesores' value='" . $_POST["profesores"] . "'/>
                             </form>
                         </td>
                     </tr>";
@@ -233,24 +266,27 @@
 
                 die("<p>Error en la BD: " . $obj->error);
             }
-        
+
             //SI TODO OK, SELECT
 
             echo "<form action='index.php' method='post'>";
-            echo "<select name='grupos_libres' id='grupos_libres'>";
+            echo "<select name='grupos_libres' id='grupos_libres' >";
 
-                foreach ($obj->grupos_libres as $tupla) {
-                    
-                    if(isset ($_POST["grupos_libres"]) && $_POST["grupos_libres"] == $tupla->id_grupo){
-                        echo "<option selected value='".$tupla->id_grupo."'>".$tupla->nombre."</option>";
-                    } else {
-                        echo "<option value='".$tupla->id_grupo."'>".$tupla->nombre."</option>";
+            foreach ($obj->grupos_libres as $tupla) {
 
-                    }
+                if (isset($_POST["grupos_libres"]) && $_POST["grupos_libres"] == $tupla->id_grupo) {
+                    echo "<option selected value='" . $tupla->id_grupo . "'>" . $tupla->nombre . "</option>";
+                } else {
+                    echo "<option value='" . $tupla->id_grupo . "'>" . $tupla->nombre . "</option>";
                 }
+            }
             echo "</select>";
 
-            echo "<button name ='add_grupo' value = '".$_POST["grupos_libres"]."'>Añadir</button>";
+            echo "<button name ='add_grupo'>Añadir</button>
+                <input type='hidden' name='dia' value='" . $_POST["dia"] . "'/>
+                <input type='hidden' name='hora' value='" . $_POST["hora"] . "'/>
+                <input type='hidden' name='profesores' value='" . $_POST["profesores"] . "'/>";
+
 
             echo "</form>";
         }
