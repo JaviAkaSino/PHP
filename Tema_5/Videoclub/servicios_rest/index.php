@@ -33,84 +33,94 @@ $app->post('/logueado', function ($request) {
 
         //Manda el servicio
         echo json_encode(login($datos, false));
-
-    } else{ //NO hay login
+    } else { //NO hay login
 
         session_destroy(); //Destruye para cerrar
-        echo json_encode(array("no_login"=>"No logueado")); //Manda no_login
+        echo json_encode(array("no_login" => "No logueado")); //Manda no_login
 
     }
 });
 
 //SALIR
 
-$app->post('/salir', function($request){
+$app->post('/salir', function ($request) {
 
     session_id($request->getParam("api_session")); //Coge la sesion de la api
     session_start(); //La inicia
     session_destroy(); //Para destruirla
-    echo json_encode(array("no_login"=>"No logueado"));
-
+    echo json_encode(array("no_login" => "No logueado"));
 });
 
 //LISTAR CLIENTES
 
-$app->get('/clientes', function($request){
+$app->get('/clientes', function ($request) {
 
     session_id($request->getParam("api_session"));
     session_start();
-    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin"){
+    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin") {
 
         echo json_encode(clientes());
-
     } else {
         session_destroy();
-        echo json_encode(array ("no_login"=>"No logueado"));
+        echo json_encode(array("no_login" => "No logueado"));
     }
 });
 
 //DATOS DE UN CLIENTE
 
+$app->get('/info/{id_cliente}', function ($request) {
+
+    session_id($request->getParam("api_session"));
+    session_start();
+    if (isset($_SESSION["tipo"])) {
+
+        $id = $request->getAttribute("id_cliente");
+        echo json_encode(info_cliente($id));
+    } else {
+        session_destroy();
+        echo json_encode(array("no_login" => "No logueado"));
+    }
+});
+
+
 //AÑADIR CLIENTE
-$app->post("/nuevo", function($request){
+$app->post("/nuevo", function ($request) {
     session_id($request->getParam("api_session"));
     session_start();
 
-    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin"){
+    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin") {
 
         $datos[] = $request->getParam("user");
         $datos[] = $request->getParam("clave");
         $datos[] = $request->getParam("foto");
 
         echo json_encode(nuevo_cliente($datos));
-
     } else {
 
         session_destroy();
-        echo json_encode(array("no_login"=>"No logueado"));
+        echo json_encode(array("no_login" => "No logueado"));
     }
-    
 });
+
+
 //EDITAR CLIENTE
 
 
 //BORRAR CLIENTE
 
 //REPETIDO INSERT
-$app->post("/repetido_insert/{tabla}/{columna}/{valor}", function($request){
+$app->post("/repetido_insert/{tabla}/{columna}/{valor}", function ($request) {
     session_id($request->getParam("api_session"));
     session_start();
 
-    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin"){
+    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin") {
 
-        echo json_encode(repetido($request->getAttribute("tabla"),$request->getAttribute("columna"),$request->getAttribute("valor")));
-
+        echo json_encode(repetido($request->getAttribute("tabla"), $request->getAttribute("columna"), $request->getAttribute("valor")));
     } else {
 
         session_destroy();
-        echo json_encode(array("no_login"=>"No logueado"));
+        echo json_encode(array("no_login" => "No logueado"));
     }
-    
 });
 
 //REPETIDO EDITAR

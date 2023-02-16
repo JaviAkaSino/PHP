@@ -1,20 +1,80 @@
 <?php
 
-if (isset($_POST["boton_confirmar_nuevo"])){
 
-    $error_user = $_POST["user"] =="";
-    $error_clave = $_POST["clave"] =="";
+/***************************CONFIRMAR NUEVO*******************/
 
-    $error_form = $error_clave || $error_user;
+if (isset($_POST["boton_confirmar_nuevo"])) {
 
-    if(!$error_form){
+    $error_user = $_POST["user"] == "";
+    $error_clave = $_POST["clave"] == "";
+    $error_foto = $_FILES["foto"]["name"] != "" && ($_FILES["foto"]["error"] || !getimagesize($_FILES["foto"]["tmp_name"]) || $_FILES["foto"]["size"] > 500000);
+
+    if (!$error_user) { //Se mira el repetido
+
+        $url = DIR_SERV . "/repetido_insert/clientes/usuario/" . $_POST["user"];
+        $respuesta = consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+        $obj = json_decode($respuesta);
+
+        if (!$obj) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+            session_destroy();
+            die(pag_error("Error consumiendo servicio REST: " . $url . "<br/>" . $respuesta));
+        }
+
+        if (isset($obj->error)) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+            session_destroy();
+            die(pag_error($obj->error));
+        }
+        if (isset($obj->no_login)) {
+            session_unset();
+            $_SESSION["seguridad"] = "Tiempo excedido de la API";
+            header("Location:index.php");
+            exit;
+        }
+
+        $error_user = $obj->repetido;
+    }
+
+    $error_form = $error_user || $error_clave || $error_foto;
+
+    if (!$error_form) {
 
         $datos_insert["user"] = $_POST["user"];
         $datos_insert["clave"] = $_POST["clave"];
-        $datos_insert["foto"] = $_
-        ["user"];
+        $datos_insert["foto"] = $_FILES["foto"];
 
-        $url = DIR_SERV . "/repetido_insert";
+        $datos_insert["api_session"] = $_SESSION["api_session"]["api_session"];
+
+        $url = DIR_SERV . "/nuevo";
+        $respuesta = consumir_servicios_rest($url, "POST", $datos_insert);
+        $obj = json_decode($respuesta);
+
+        if (!$obj) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+            session_destroy();
+            die(pag_error("Error consumiendo servicio REST: " . $url . "<br/>" . $respuesta));
+        }
+
+        if (isset($obj->error)) {
+            $url_salir = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+            session_destroy();
+            die(pag_error($obj->error));
+        }
+        if (isset($obj->no_login)) {
+            session_unset();
+            $_SESSION["seguridad"] = "Tiempo excedido de la API";
+            header("Location:index.php");
+            exit;
+        }
+
+        $_SESSION["mensaje_accion"] = $obj->mensaje;
+        header("Location:index.php");
+        exit;
     }
 }
 
@@ -70,100 +130,33 @@ if (isset($_POST["boton_confirmar_nuevo"])){
 
     <?php
 
-    //TABLA CLIENTES
+    // MENSAJE ACCION
 
-    $url = DIR_SERV . "/clientes";
-    $respuesta = consumir_servicios_rest($url, "GET", $_SESSION["api_session"]);
-    $obj = json_decode($respuesta);
-
-    if (!$obj) {
-        $url_salir = DIR_SERV . "/salir";
-        consumir_servicios_rest($url_salir, "POST", $_SESSION["api_session"]);
-        session_destroy();
-        die("<p>Error al consumir servicio REST: " . $url . "</p>" . $respuesta . "</body></html>");
+    if (isset($_SESSION["mensaje_accion"])) {
+        echo "<p>" . $_SESSION["mensaje_accion"] . "</p>";
+        unset($_SESSION["mensaje_accion"]);
     }
 
-    if (isset($obj->error)) {
-        $url_salir = DIR_SERV . "/salir";
-        consumir_servicios_rest($url_salir, "POST", $_SESSION["api_session"]);
-        session_destroy();
-        die("<p>" . $obj->error . "</p></body></html>");
+
+    //DATOS CLIENTE
+    if (isset($_POST["boton_info"])) {
+
+        require "admin/info.php";
     }
-
-    if (isset($obj->no_login)) {
-
-        session_destroy();
-        die("<p>El tiempo de sesión de la API ha expirado. Vuelva a loguearse</p></body></html>");
-    }
-
-    echo "<h2>
-            Listado de los clientes (" . count($obj->clientes) . ")
-            <form class='linea' method='post'><button name='boton_nuevo' class='enlace'> [+] </button></form>
-        </h2>";
 
     //AÑADIR CLIENTE
 
     if (isset($_POST["boton_nuevo"]) || (isset($_POST["boton_confirmar_nuevo"]) && $error_form)) {
 
-    ?>
-
-        <h3>Añadir cliente</h3>
-        <form action="index.php" method="post">
-            <p>
-                <label for="user">Usuario:</label>
-                <input type="text" name="user" id="user" value="<?php if (isset($_POST["user"])) echo $_POST["user"] ?>">
-                <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_user) {
-                    if ($_POST["user"] == "")
-                        echo "<span class='error'>* Campo vacío</span>";
-                    else
-                        echo "<span class='error'>* Usuario o clave incorrectos</span>";
-                }
-                ?>
-            </p>
-
-            <p>
-                <label for="clave">Contraseña:</label>
-                <input type="password" name="clave" id="clave">
-                <?php if (isset($_POST["boton_confirmar_nuevo"]) && $error_clave) {
-                        echo "<span class='error'>* Campo vacío</span>";
-
-                }
-                ?>
-            </p>
-            <p>
-                <button>Atrás</button>
-                <button type="submit" name="boton_confirmar_nuevo">Añadir</button>
-            </p>
-        </form>
-
-    <?php
+        require "admin/nuevo.php";
     }
 
-    echo "<table>";
-    echo "<tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Foto</th>
-                <th>Acción</th>
-            </tr>";
 
-    foreach ($obj->clientes as $tupla) {
 
-        echo "<tr>
-                    <th>" . $tupla->id_cliente . "</th>
-                    <td>" . $tupla->usuario . "</td>
-                    <td><img src='img/" . $tupla->foto . "' width='100px' height='auto'/></td>
-                    <td>
-                        <form action='index.php' method='post'>
-                            <button class='enlace' name='boton_editar' value='" . $tupla->id_cliente . "'>Editar</button>
-                            <span> - </span>
-                            <button class='enlace' name='boton_borrar' value='" . $tupla->id_cliente . "'>Borrar</button>
-                        </form>
-                    </td>
-                </tr>";
-    }
-    echo "</table>";
 
+    //TABLA CLIENTES
+
+    require "admin/tabla.php";
 
 
     ?>
