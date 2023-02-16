@@ -50,14 +50,31 @@ $app->post("/logueado", function ($request){
 
 $app->get("/horario/{id_usuario}", function ($request) {
 
-    echo json_encode(horario($request->getAttribute("id_usuario")));
+    session_id($request->getParam("api_session"));
+    session_start();
+    if(isset($_SESSION["tipo"])){
+        echo json_encode(horario($request->getAttribute("id_usuario")));
+    } else {
+        session_destroy();
+        echo json_encode(array("no_login" => "No está logueado"));
+    }
+    
 });
 
 //USUARIOS NO ADMIN
 
-$app->get("/usuarios", function () {
+$app->get("/usuarios", function ($request) {
 
-    echo json_encode(usuarios());
+    session_id($request->getParam("api_session"));
+    session_start();
+    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin"){
+        echo json_encode(usuarios());
+    } else{
+
+        session_destroy();
+        echo json_encode(array("no_login"=>"No está logueado"));
+    }
+    
 });
 
 //TIENE GRUPO

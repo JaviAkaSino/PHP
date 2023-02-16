@@ -7,20 +7,37 @@ if (isset($_POST["quitar_grupo"])) {
     $obj = json_decode($respuesta);
 
     if (!$obj) {
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         session_destroy();
         die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>Error consumiendo el servicio: " . $url . "</p>" . $respuesta));
     }
 
     if (isset($obj->error)) {
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         session_destroy();
         die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>" . $obj->error . "</p>"));
     }
 
     if (isset($obj->no_login)) {
+        session_unset();
+        $_SESSION["seguridad"] = "Tiempo API excedido";
+        header("Location:index.php");
+        exit;
     }
 
+
+
     $_SESSION["mensaje_accion"] = $obj->mensaje;
-}   
+
+    $_SESSION["profesor"] = $_POST["profesores"];
+    $_SESSION["dia"] = $_POST["dia"];
+    $_SESSION["hora"] = $_POST["hora"];
+
+    header("Location:index.php");
+    exit;
+}
 
 
 if (isset($_POST["add_grupo"])) {
@@ -30,11 +47,15 @@ if (isset($_POST["add_grupo"])) {
     $obj = json_decode($respuesta);
 
     if (!$obj) {
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         session_destroy();
         die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>Error consumiendo el servicio: " . $url . "</p>" . $respuesta));
     }
 
     if (isset($obj->error)) {
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         session_destroy();
         die(error_page("Examen4 PHP", "<h1>Examen4 PHP</h1><p>" . $obj->error . "</p>"));
     }
@@ -43,6 +64,13 @@ if (isset($_POST["add_grupo"])) {
     }
 
     $_SESSION["mensaje_accion"] = $obj->mensaje;
+
+    $_SESSION["profesor"] = $_POST["profesores"];
+    $_SESSION["dia"] = $_POST["dia"];
+    $_SESSION["hora"] = $_POST["hora"];
+
+    header("Location:index.php");
+    exit;
 }
 
 
@@ -93,16 +121,18 @@ if (isset($_POST["add_grupo"])) {
     // Sacamos los usuarios
 
     $url = DIR_SERV . "/usuarios";
-    $respuesta = consumir_servicios_rest($url, "GET");
+    $respuesta = consumir_servicios_rest($url, "GET", $_SESSION["api_session"]);
     $obj = json_decode($respuesta);
 
     if (!$obj) {
-
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         die("<p>Error al consumir servicios REST: " . $url . "</p>" . $respuesta);
     }
 
     if (isset($obj->error)) {
-
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         die("<p>" . $obj->error . "</p>");
     }
 
@@ -115,7 +145,7 @@ if (isset($_POST["add_grupo"])) {
 
     foreach ($obj->usuarios as $tupla) {
 
-        if (isset($_POST["profesores"]) && $_POST["profesores"] == $tupla->id_usuario) {
+        if ((isset($_POST["profesores"]) && $_POST["profesores"] == $tupla->id_usuario) || isset($_SESSION["profesor"]) && $_SESSION["profesor"] == $tupla->id_usuario) {
             echo "<option selected value='" . $tupla->id_usuario . "'>$tupla->nombre</option>";
             $profe = $tupla;
         } else
@@ -126,26 +156,41 @@ if (isset($_POST["add_grupo"])) {
     echo "<button name='ver_horario'>Ver Horario</button>";
     echo "</form>";
 
-    if (isset($_POST["ver_horario"]) || isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"]) || isset($_POST["add_grupo"])) { //Cuando se pulse ver horario
+    if (isset($_POST["profesores"]) || isset($_SESSION["profesor"])) { //Cuando se pulse ver horario
+
+        if (isset($_SESSION["profesor"])) {
+            $profesor = $_SESSION["profesor"];
+            unset($_SESSION["profesor"]);
+        } else
+            $profesor = $_POST["profesores"];
 
         //SACAMOS SU HORARIO
-        $url = DIR_SERV . "/horario/" . $_POST["profesores"];
+        $url = DIR_SERV . "/horario/" . $profesor;
 
-        $respuesta = consumir_servicios_rest($url, "GET");
+        $respuesta = consumir_servicios_rest($url, "GET", $_SESSION["api_session"]);
 
         $obj = json_decode($respuesta);
 
         if (!$obj) {
-
+            $url = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+            session_destroy();
             die("<p>Error al consumir servicios REST: " . $url . "</p>" . $respuesta . "</body></html>");
         }
 
         if (isset($obj->error)) {
-
+            $url = DIR_SERV . "/salir";
+            consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+            session_destroy();
             die("<p>Error en la BD: " . $obj->error);
         }
 
         if (isset($obj->no_login)) {
+            //NO hace falta salir de la api
+            session_unset();
+            $_SESSION["seguridad"] = "Tiempo de la API excedido";
+            header("Location:index.php");
+            exit;
         }
 
         //Creo array grupos
@@ -208,7 +253,7 @@ if (isset($_POST["add_grupo"])) {
                             <button name='editar_hora' class='enlace'>Editar</button>
                             <input type='hidden' name='dia' value='" . $i . "'/>
                             <input type='hidden' name='hora' value='" . $num . "'/>
-                            <input type='hidden' name='profesores' value='" . $_POST["profesores"] . "'/>
+                            <input type='hidden' name='profesores' value='" . $profesor . "'/>
                         </form>";
                     echo "</td>";
                 }
@@ -218,36 +263,61 @@ if (isset($_POST["add_grupo"])) {
         echo "</table>";
 
 
-        if (isset($_POST["editar_hora"]) || isset($_POST["quitar_grupo"]) || isset($_POST["add_grupo"])) {
+        if (isset($_POST["dia"]) || isset($_SESSION["dia"])) {
 
             // SACAMOS LOS GRUPOS
+            if (isset($_SESSION["dia"])) {
+                $dia = $_SESSION["dia"];
+                $hora = $_SESSION["hora"];
+
+                unset($_SESSION["dia"]);
+                unset($_SESSION["hora"]);
+            } else {
+
+                $dia = $_POST["dia"];
+                $hora = $_POST["hora"];
+            }
 
 
-            $url = DIR_SERV . "/grupos/" . $_POST["dia"] . "/" . $_POST["hora"] . "/" . $_POST["profesores"];
-            $respuesta = consumir_servicios_rest($url, "GET");
+
+            $url = DIR_SERV . "/grupos/" . $dia . "/" . $hora . "/" . $profesor;
+            $respuesta = consumir_servicios_rest($url, "GET", $_SESSION["api_session"]);
             $obj = json_decode($respuesta);
 
             if (!$obj) {
+                $url = DIR_SERV . "/salir";
+                consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+                session_destroy();
                 die("<p>Error al consumir servicios REST: " . $url . "</p>" . $respuesta . "</body></html>");
             }
 
             if (isset($obj->error)) {
-
+                $url = DIR_SERV . "/salir";
+                consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
+                session_destroy();
                 die("<p>Error en la BD: " . $obj->error);
             }
 
+            if (isset($obj->no_login)) {
+                //NO hace falta salir de la api
+                session_unset();
+                $_SESSION["seguridad"] = "Tiempo de la API excedido";
+                header("Location:index.php");
+                exit;
+            }
 
 
             //Si todo OK TABLA
-            $numero_hora =  $_POST["hora"];
-            if ($_POST["hora"] > 4)
+            $numero_hora =  $hora;
+            if ($hora > 4)
                 $numero_hora -= 1;
 
-            echo "<h2>Editando la " . $numero_hora . "ª hora (" . $horas[$_POST["hora"]] . ") del " . $dias[$_POST["dia"]] . "</h2>";
+            echo "<h2>Editando la " . $numero_hora . "ª hora (" . $horas[$hora] . ") del " . $dias[$dia] . "</h2>";
 
             if (isset($_SESSION["mensaje_accion"])) {
 
                 echo "<p>" . $_SESSION["mensaje_accion"] . "</p>";
+                unset($_SESSION["mensaje_accion"]);
             }
 
 
@@ -260,30 +330,43 @@ if (isset($_POST["add_grupo"])) {
                         <td>
                             <form method='post' action='index.php'>
                                 <button name='quitar_grupo' value='" . $tupla->id_grupo . "' class='enlace'>Quitar</button>
-                                <input type='hidden' name='dia' value='" . $_POST["dia"] . "'/>
-                                <input type='hidden' name='hora' value='" . $_POST["hora"] . "'/>
-                                <input type='hidden' name='profesores' value='" . $_POST["profesores"] . "'/>
+                                <input type='hidden' name='dia' value='" . $dia . "'/>
+                                <input type='hidden' name='hora' value='" . $hora . "'/>
+                                <input type='hidden' name='profesores' value='" . $profesor . "'/>
                             </form>
                         </td>
                     </tr>";
             }
 
-            echo "</table>";
+            echo "</table><br/>";
 
 
             //SACAMOS GRUPOS LIBRES
 
-            $url = DIR_SERV . "/gruposLibres/" . $_POST["dia"] . "/" . $_POST["hora"] . "/" . $_POST["profesores"];
-            $respuesta = consumir_servicios_rest($url, "GET");
+            $url = DIR_SERV . "/gruposLibres/" . $dia . "/" . $hora . "/" . $profesor;
+            $respuesta = consumir_servicios_rest($url, "GET", $_SESSION["api_session"]);
             $obj = json_decode($respuesta);
 
             if (!$obj) {
+                $url_salir = DIR_SERV . "/salir";
+                consumir_servicios_rest($url_salir, "POST", $_SESSION["api_session"]);
+                session_destroy();
                 die("<p>Error al consumir servicios REST: " . $url . "</p>" . $respuesta . "</body></html>");
             }
 
             if (isset($obj->error)) {
-
+                $url_salir = DIR_SERV . "/salir";
+                consumir_servicios_rest($url_salir, "POST", $_SESSION["api_session"]);
+                session_destroy();
                 die("<p>Error en la BD: " . $obj->error);
+            }
+
+            if (isset($obj->no_login)) {
+                //NO hace falta salir de la api
+                session_unset();
+                $_SESSION["seguridad"] = "Tiempo de la API excedido";
+                header("Location:index.php");
+                exit;
             }
 
             //SI TODO OK, SELECT
@@ -302,9 +385,9 @@ if (isset($_POST["add_grupo"])) {
             echo "</select>";
 
             echo "<button name ='add_grupo'>Añadir</button>
-                <input type='hidden' name='dia' value='" . $_POST["dia"] . "'/>
-                <input type='hidden' name='hora' value='" . $_POST["hora"] . "'/>
-                <input type='hidden' name='profesores' value='" . $_POST["profesores"] . "'/>";
+                <input type='hidden' name='dia' value='" . $dia . "'/>
+                <input type='hidden' name='hora' value='" . $hora . "'/>
+                <input type='hidden' name='profesores' value='" . $profesor . "'/>";
 
 
             echo "</form>";

@@ -44,24 +44,30 @@
     <?php
 
     //SACAMOS HORARIO
-
     $url = DIR_SERV . "/horario/" . $datos_usuario_log->id_usuario;
 
-    $respuesta = consumir_servicios_rest($url, "GET");
+    $respuesta = consumir_servicios_rest($url, "GET", $_SESSION["api_session"]);
 
     $obj = json_decode($respuesta);
 
     if (!$obj) {
-
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         die("<p>Error al consumir servicios REST: " . $url . "</p>" . $respuesta . "</body></html>");
     }
 
     if (isset($obj->error)) {
-
+        $url = DIR_SERV . "/salir";
+        consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
         die("<p>Error en la BD: " . $obj->error);
     }
 
     if (isset($obj->no_login)) {
+        session_unset();
+        $_SESSION["seguridad"] = "Tiempo de la API excedido";
+        header("Location:index.php");
+        exit;
+
     }
 
     //Creo array grupos
