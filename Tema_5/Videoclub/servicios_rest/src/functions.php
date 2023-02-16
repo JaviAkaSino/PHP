@@ -18,24 +18,25 @@ function conexion_pdo()
 }
 
 
-function login($datos, $first_time = true){
+function login($datos, $first_time = true)
+{
 
-    try{
+    try {
         $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
 
-        try{
-    
+        try {
+
             $consulta = "SELECT * FROM clientes WHERE usuario = ? AND clave = ?";
             $sentencia = $conexion->prepare($consulta);
             $sentencia->execute($datos);
 
             $respuesta["user"] = $datos;
-            if ($sentencia->rowCount()>0){ //Info correcta
+            if ($sentencia->rowCount() > 0) { //Info correcta
 
 
-                $respuesta["usuario"]= $sentencia->fetch(PDO::FETCH_ASSOC);
+                $respuesta["usuario"] = $sentencia->fetch(PDO::FETCH_ASSOC);
 
-                if ($first_time){ //En el login
+                if ($first_time) { //En el login
                     //Crea sesión api
                     session_name("videoclub_api");
                     session_start();
@@ -46,20 +47,78 @@ function login($datos, $first_time = true){
                     //Guarda objeto con los datos de la sesión
                     $respuesta["api_session"] = session_id();
                 }
-                
             } else {
 
                 $respuesta["mensaje"] = "Usuario o contraseña no válidos";
             }
+        } catch (PDOException $e) {
 
-        } catch(PDOException $e){
-    
-            $respuesta["error"]= "Error de consulta: " . $e->getMessage();
+            $respuesta["error"] = "Error de consulta: " . $e->getMessage();
         }
+    } catch (PDOException $e) {
 
-    } catch(PDOException $e){
+        $respuesta["error"] = "Error conectando a BD: " . $e->getMessage();
+    }
 
-        $respuesta["error"]= "Error conectando a BD: " . $e->getMessage();
+    return $respuesta;
+}
+
+
+function clientes()
+{
+
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $consulta = "SELECT * FROM clientes WHERE tipo = 'normal'";
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute();
+
+            $respuesta["clientes"] = $sentencia->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+
+            $respuesta["error"] = "Error de consulta: " . $e->getMessage();
+        }
+    } catch (PDOException $e) {
+
+        $respuesta["error"] = "Error conectando a BD: " . $e->getMessage();
+    }
+
+    return $respuesta;
+}
+
+
+function repetido($tabla, $columna, $valor, $columna_clave = null, $valor_clave = null)
+{
+
+    try {
+        $conexion = new PDO("mysql:host=" . SERVIDOR_BD . ";dbname=" . NOMBRE_BD, USUARIO_BD, CLAVE_BD, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+        try {
+
+            $datos[] = $valor;
+
+            if (isset($columna_clave)) {
+                $datos[] = $valor_clave;
+                $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . " = ? AND " . $columna_clave . " <> ?";
+            } else {
+                $consulta = "SELECT * FROM " . $tabla . " WHERE " . $columna . " = ?";
+            }
+
+            $sentencia = $conexion->prepare($consulta);
+            $sentencia->execute($datos);
+
+            $respuesta["repetido"] = $sentencia->fetch(PDO::FETCH_ASSOC)>0;
+        } catch (PDOException $e) {
+
+            $respuesta["error"] = "Error de consulta: " . $e->getMessage();
+        }
+    } catch (PDOException $e) {
+
+        $respuesta["error"] = "Error conectando a BD: " . $e->getMessage();
     }
 
     return $respuesta;

@@ -11,6 +11,7 @@ if (isset($_POST["boton_login"])) {
 
     if (!$error_form) {
 
+        //Array ASOCIATIVO
         $datos_login["usuario"] = $_POST["usuario"];
         $datos_login["clave"] = md5($_POST["clave"]);
 
@@ -27,7 +28,7 @@ if (isset($_POST["boton_login"])) {
             die(pag_error($obj->error));
         }
 
-        if (isset($obj->mensaje)) { //User/passw incorrectas
+        if (isset($obj->mensaje)) { //User o clave incorrectas
 
             $error_usuario = true; //Para que de error y vuelva al form
 
@@ -92,6 +93,7 @@ if (isset($_POST["boton_login"])) {
 
     if (isset($_SESSION["seguridad"])) {
         echo "<p>" . $_SESSION["seguridad"] ."</p>";
+        session_destroy(); //Destruye la sesión, para borrar mensaje y datos
     }
 
     ?>

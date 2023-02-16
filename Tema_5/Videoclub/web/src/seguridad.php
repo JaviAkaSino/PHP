@@ -16,7 +16,7 @@
         }
 
         if (isset($obj->error)) {
-            $url_salir = DIR_SERV . "/salir"; //Cerramos api sesion, si no, da igual
+            $url_salir = DIR_SERV . "/salir"; //Cerramos api sesion
             consumir_servicios_rest($url_salir, "POST", $_SESSION["api_session"]);
             session_destroy(); //Destruimos la normal también
             die(pag_error($obj->error));
@@ -24,7 +24,7 @@
 
         if (isset($obj->no_login)){
             //Aquí no hay que salir, hacemos el unset
-            session_unset();
+            session_unset(); //Si hiciéramos destroy, no podríamos hacer seguridad
             //Seguridad y salto, NO DIE, tiene que salir el login
             $_SESSION["seguridad"] = "Tiempo de sesión de la API excedido";
             header("Location:index.php");
@@ -53,12 +53,13 @@
 
         if (time() - $_SESSION["ultimo_acceso"] > 60 * MINUTOS){ //Se ha excedido el tiempo
 
-            $_SESSION["seguridad"] = "Tiempo de sesión excedido";
+            
             //Cerramos sesion API
             $url = DIR_SERV . "/salir";
             consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
             //Unset de la sesión normal
-            session_unset();
+            session_unset(); //Unset para poder usar sesion de seguridad
+            $_SESSION["seguridad"] = "Tiempo de sesión excedido";
             //Mandamos al login
             header("Location:index.php");
             exit;

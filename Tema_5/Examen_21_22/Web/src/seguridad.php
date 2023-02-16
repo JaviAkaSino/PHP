@@ -44,13 +44,14 @@ if (isset($obj->mensaje)) {
 
 if (time() - $_SESSION["ultimo_acceso"] > MINUTOS * 60) {
 
-    $_SESSION["seguridad"] = "Su tiempo de sesión ha caducado. Vuelva a loguearse o registrarse";
+    
 
     //Cerramos sesion API
     $url = DIR_SERV . "/salir";
     consumir_servicios_rest($url, "POST", $_SESSION["api_session"]);
     //Unset de la sesión normal
     session_unset();
+    $_SESSION["seguridad"] = "Su tiempo de sesión ha caducado. Vuelva a loguearse o registrarse";
     //Mandamos al login
     header("Location:index.php");
     exit;
