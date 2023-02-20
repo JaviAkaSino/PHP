@@ -51,14 +51,14 @@ $app->post("/salir", function ($request) {
 $app->get("/productos", function ($request) {
 
 
-    session_id($request->getParam("api_session"));
-    session_start();
-    if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin") {
+    //session_id($request->getParam("api_session"));
+    //session_start();
+   // if (isset($_SESSION["tipo"]) && $_SESSION["tipo"] == "admin") {
         echo json_encode(obtener_productos());
-    } else {
-        session_destroy();
-        echo json_encode(array("no_login" => "Usted no tiene permisos para usar este servicio"));
-    }
+    //} else {
+    //    session_destroy();
+    //    echo json_encode(array("no_login" => "Usted no tiene permisos para usar este servicio"));
+    //}
 });
 
 
