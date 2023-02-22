@@ -1,6 +1,38 @@
-const DIR_SERV = "http://localhost/PHP/Tema_5/Intro/servicios_rest_teor";
+const DIR_SERV = "http://localhost/PHP/Tema_5/Miguel/Ejercicio1/servicios_rest_ejer1";
 
+function error_ajax_jquery(jqXHR, textStatus) {
+    var respuesta;
+    if (jqXHR.status === 0) {
 
+        respuesta = 'Not connect: Verify Network.';
+
+    } else if (jqXHR.status == 404) {
+
+        respuesta = 'Requested page not found [404]';
+
+    } else if (jqXHR.status == 500) {
+
+        respuesta = 'Internal Server Error [500].';
+
+    } else if (textStatus === 'parsererror') {
+
+        respuesta = 'Requested JSON parse failed.';
+
+    } else if (textStatus === 'timeout') {
+
+        respuesta = 'Time out error.';
+
+    } else if (textStatus === 'abort') {
+
+        respuesta = 'Ajax request aborted.';
+
+    } else {
+
+        respuesta = 'Uncaught Error: ' + jqXHR.responseText;
+
+    }
+    return respuesta;
+}
 
 $(document).ready(function () {
     obtener_productos();
@@ -9,7 +41,7 @@ $(document).ready(function () {
 function obtener_productos() {
 
     $.ajax({
-        url: "http://localhost/PHP/Tema_5/Tienda/Ejercicio1/servicios_rest/productos",
+        url: DIR_SERV + "/productos",
         type: "GET",
         dataType: "json"
     })
@@ -21,12 +53,12 @@ function obtener_productos() {
             } else {
 
                 var html_output = "<table><tr><th>COD</th><th>Nombre corto</th><th>PVP</th></tr>"
-                $.each(data.productos, function(key, tupla){
+                $.each(data.productos, function (key, tupla) {
 
                     html_output += "<tr>";
-                    html_output += "<td>"+tupla["cod"]+"</td>";
-                    html_output += "<td>"+tupla["nombre_corto"]+"</td>";
-                    html_output += "<td>"+tupla["PVP"]+"</td>";
+                    html_output += "<td>" + tupla["cod"] + "</td>";
+                    html_output += "<td>" + tupla["nombre_corto"] + "</td>";
+                    html_output += "<td>" + tupla["PVP"] + "</td>";
                     html_output += "</tr>";
                 });
 
@@ -38,7 +70,7 @@ function obtener_productos() {
         })
         .fail(function () {
 
-
+            $("div#respuesta").html(error_ajax_jquery(a, b));
 
         });
 

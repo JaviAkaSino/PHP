@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/jquery-3.6.3.js"></script>
+    <script src="js/index.js"></script>
+    <title>Tienda - CRUD JS</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black
+        }
+
+        th{
+            background-color: #FF600A;
+        }
+
+        table {
+            border-collapse: collapse
+        }
+
+        .centrado {
+            text-align: center
+        }
+
+        .centro {
+            width: 80%;
+            margin: 0 auto
+        }
+
+        .enlace {
+            border: none;
+            background: none;
+            text-decoration: underline;
+            color: #FF600A;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #boton_nuevo {
+            border: none;
+            background: none;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+        .mensaje {
+            color: blue;
+            font-size: 1.25em
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="centrado">Listado de los productos</h1>
+
+    <div class="centro" id="respuesta"></div>
+    <div class="centro centrado" id="productos"></div>
+
+</body>
+
+</html>
