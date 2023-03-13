@@ -44,7 +44,7 @@ $app->get('/productos',function($request){
 
     session_id($request->getParam('api_session'));
     session_start();
-    if(isset($_SESSION["tipo"]) && $_SESSION["tipo"]=="admin")
+    if(isset($_SESSION["tipo"]))
         echo json_encode(obtener_productos());
     else
     {
@@ -58,7 +58,7 @@ $app->get('/producto/{cod}',function($request){
 
     session_id($request->getParam('api_session'));
     session_start();
-    if(isset($_SESSION["tipo"]) && $_SESSION["tipo"]=="admin")
+    if(isset($_SESSION["tipo"]))
         echo json_encode(obtener_producto($request->getAttribute('cod')));
     else
     {
@@ -141,7 +141,7 @@ $app->get('/familia/{cod}',function($request){
 
     session_id($request->getParam('api_session'));
     session_start();
-    if(isset($_SESSION["tipo"]) && $_SESSION["tipo"]=="admin")
+    if(isset($_SESSION["tipo"]))
         echo json_encode(obtener_familia($request->getAttribute('cod')));
     else
     {

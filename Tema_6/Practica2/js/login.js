@@ -87,6 +87,8 @@ function cargar_vista_oportuna(datos_usu_log)
     $('#principal').html(html_output);
     if(datos_usu_log["tipo"]=="admin")
         obtener_productos();
+    else
+        obtener_productos_normal();
 }
 
 function hacer_login()

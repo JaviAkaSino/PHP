@@ -1,47 +1,40 @@
 
-function seguridad(funcion, params=undefined)
-{
-    if(((new Date()/1000)-localStorage.ultimo_acceso)<TIEMPO_SESION_MINUTOS*60)
-        {
-            $.ajax({
-                url:DIR_SERV+"/logueado",
-                type:"POST",
-                dataType:"json",
-                data:{"api_session":localStorage.api_session}
-            })
-            .done(function(data){
-                if(data.usuario)
-                {
-                    localStorage.setItem("ultimo_acceso",(new Date()/1000));
+function seguridad(funcion, params = undefined) {
+    if (((new Date() / 1000) - localStorage.ultimo_acceso) < TIEMPO_SESION_MINUTOS * 60) {
+        $.ajax({
+            url: DIR_SERV + "/logueado",
+            type: "POST",
+            dataType: "json",
+            data: { "api_session": localStorage.api_session }
+        })
+            .done(function (data) {
+                if (data.usuario) {
+                    localStorage.setItem("ultimo_acceso", (new Date() / 1000));
                     funcion(params)
                 }
-                else if(data.no_login)
-                {
+                else if (data.no_login) {
                     cargar_vista_login("El tiempo de sesión de la API ha expirado");
                     localStorage.clear();
                 }
-                else if(data.mensaje_error)
-                {
+                else if (data.mensaje_error) {
                     $('#errores').html(data.mensaje_error);
                     $('#principal').html("");
                     localStorage.clear();
                 }
-                else
-                {
+                else {
                     cargar_vista_login("Usted ya no se encuentra registrado en la BD");
                     localStorage.clear();
                 }
             })
-            .fail(function(a,b){
-                $('#errores').html(error_ajax_jquery(a,b));
+            .fail(function (a, b) {
+                $('#errores').html(error_ajax_jquery(a, b));
                 $('#principal').html("");
             });
-        }
-        else
-        {
-            cargar_vista_login("Su tiempo de sesión ha expirado");
-            localStorage.clear();
-        }
+    }
+    else {
+        cargar_vista_login("Su tiempo de sesión ha expirado");
+        localStorage.clear();
+    }
 
 }
 
@@ -54,7 +47,9 @@ function obtener_productos() {
     $.ajax({
         url: DIR_SERV + "/productos",
         type: "GET",
-        dataType: "json"
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
+
     })
         .done(function (data) {
             if (data.mensaje_error) {
@@ -62,16 +57,65 @@ function obtener_productos() {
                 $("div#errores").html(data.mensaje_error)
                 $("div#principal").html("")
 
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
             } else {
 
-                var html_output = "<table><tr><th>COD</th><th>Nombre corto</th><th>PVP</th><th>Acción <button onclick ='nuevo_producto()'> + </button></th></tr>"
+                var html_output = "<table><tr><th>COD</th><th>Nombre corto</th><th>PVP</th><th>Acción <button onclick ='seguridad(nuevo_producto)'> + </button></th></tr>"
                 $.each(data.productos, function (key, tupla) {
 
                     html_output += "<tr>";
-                    html_output += "<td><button onclick = 'info_producto(\"" + tupla["cod"] + "\")' class='enlace'>" + tupla["cod"] + "</button></td>";
+                    html_output += "<td><button onclick = 'seguridad(info_producto, \"" + tupla["cod"] + "\")' class='enlace'>" + tupla["cod"] + "</button></td>";
                     html_output += "<td>" + tupla["nombre_corto"] + "</td>";
                     html_output += "<td>" + tupla["PVP"] + "</td>";
-                    html_output += "<td><button onclick= 'borrar_producto(\"" + tupla["cod"] + "\")' class='enlace'>Borrar</button> - <button  onclick='montar_form_editar(\""+tupla["cod"]+"\")' class='enlace'>Editar</button></td>";
+                    html_output += "<td><button onclick= 'seguridad(borrar_producto,\"" + tupla["cod"] + "\")' class='enlace'>Borrar</button> - <button  onclick='seguridad(montar_form_editar,\"" + tupla["cod"] + "\")' class='enlace'>Editar</button></td>";
+                    html_output += "</tr>";
+                });
+
+                html_output += "</table>";
+
+                $("div#productos").html(html_output);
+            }
+
+        })
+        .fail(function (a, b) {
+
+            $("div#errores").html(error_ajax_jquery(a, b));
+            $("div#principal").html("")
+
+        });
+
+}
+
+function obtener_productos_normal() {
+
+    $.ajax({
+        url: DIR_SERV + "/productos",
+        type: "GET",
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
+    })
+        .done(function (data) {
+            if (data.mensaje_error) {
+
+                $("div#errores").html(data.mensaje_error)
+                $("div#principal").html("")
+
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
+            } else {
+
+                var html_output = "<table><tr><th>COD</th><th>Nombre corto</th><th>PVP</th></tr>"
+                $.each(data.productos, function (key, tupla) {
+
+                    html_output += "<tr>";
+                    html_output += "<td><button onclick = 'seguridad(info_producto, \"" + tupla["cod"] + "\")' class='enlace'>" + tupla["cod"] + "</button></td>";
+                    html_output += "<td>" + tupla["nombre_corto"] + "</td>";
+                    html_output += "<td>" + tupla["PVP"] + "</td>";
                     html_output += "</tr>";
                 });
 
@@ -94,7 +138,8 @@ function info_producto(cod) {
     $.ajax({
         url: encodeURI(DIR_SERV + "/producto/" + cod),
         type: "GET",
-        dataType: "json"
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
     })
         .done(function (data) {
 
@@ -105,6 +150,10 @@ function info_producto(cod) {
                 $("div#errores").html(data.mensaje_error)
                 $("div#principal").html("")
 
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
             } else if (data.producto) { //SÓLO SI NO ESTÁ BORRADO
 
                 //Nombre de la familia 
@@ -133,7 +182,7 @@ function info_producto(cod) {
                             output += "<p><strong>PVP: </strong>" + data.producto["PVP"] + "€</p>"
                             output += "<p><strong>Familia: </strong>" + data_fam.familia.nombre + "</p>"
 
-                            output += "<p><button onclick= 'volver()'>Volver</button></p>"
+                            output += "<p><button onclick= 'seguridad(volver)'>Volver</button></p>"
 
                         }
 
@@ -171,7 +220,8 @@ function nuevo_producto() {
     $.ajax({
         url: DIR_SERV + "/familias",
         type: "GET",
-        dataType: "json"
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
     })
         .done(function (data) {
 
@@ -180,9 +230,13 @@ function nuevo_producto() {
                 $("div#errores").html(data.mensaje_error)
                 $("div#principal").html("")
 
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
             } else {
                 //El onsubmit va aqui y no en el botón, para aprovechar el required
-                output += "<form onsubmit='event.preventDefault(); confirmar_nuevo(); '>"
+                output += "<form onsubmit='event.preventDefault(); seguridad(confirmar_nuevo); '>"
 
                 output += "<p><label for='cod'>Código: </label><input type='text' id ='cod' required/><span id='error_cod'></span></p>"
                 output += "<p><label for='nombre'>Nombre: </label><input type='text' id ='nombre' required/></p>"
@@ -196,7 +250,7 @@ function nuevo_producto() {
                 })
                 output += "</select>"
                 output += "</p>"
-                output += "<p><button onclick='volver();event.preventDefault()'>Volver</button><button onclick='confirmar_nuevo()'>Confirmar</button></p>"
+                output += "<p><button onclick='seguridad(volver);event.preventDefault()'>Volver</button><button onclick='seguridad(confirmar_nuevo)'>Confirmar</button></p>"
                 output += "</form>"
 
             }
@@ -225,7 +279,8 @@ function confirmar_nuevo() {
     $.ajax({
         url: encodeURI(DIR_SERV + "/repetido_insert/producto/cod/" + cod),
         type: "GET",
-        dataType: "json"
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
     })
         .done(function (data) {
 
@@ -255,6 +310,10 @@ function confirmar_nuevo() {
 
                     });
 
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
             } else if (!data.repetido) { //Si esta bien, siguiente
 
                 $.ajax({
@@ -293,6 +352,10 @@ function confirmar_nuevo() {
                                         $("div#errores").html(data.mensaje_error)
                                         $("div#principal").html("")
 
+                                    } else if (data.no_login) {
+
+                                        cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                                        localStorage.clear()
                                     } else {
 
                                         output = "<p class='centrado mensaje'>El producto <strong>" + cod + "</strong> ha sido insertado con éxito</p>"
@@ -343,145 +406,151 @@ function confirmar_nuevo() {
         })
 }
 
-function comprobar_editar(cod)
-{
- 
-    var nombre_corto=$('#nombre_corto').val();
+function comprobar_editar(cod) {
+
+    var nombre_corto = $('#nombre_corto').val();
     $.ajax({
-        url:encodeURI(DIR_SERV+"/repetido_edit/producto/nombre_corto/"+nombre_corto+"/cod/"+cod),
-        type:"GET",
-        dataType:"json"
+        url: encodeURI(DIR_SERV + "/repetido_edit/producto/nombre_corto/" + nombre_corto + "/cod/" + cod),
+        type: "GET",
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
     })
-    .done(function(data){
-    
-        if(data.repetido)
-        {
-            $('#error_nombre_corto').html("Nombre corto repetido");
-           
-        }
-        else if(!data.repetido)
-        {
-            var nombre=$('#nombre').val();
-            var descripcion=$('#descripcion').val();
-            var PVP=$('#PVP').val();
-            var familia=$('#familia').val();
-            $.ajax({
-                url:encodeURI(DIR_SERV+"/producto/actualizar/"+cod),
-                type:"PUT",
-                dataType:"json",
-                data:{"nombre":nombre, "nombre_corto":nombre_corto, "descripcion":descripcion, "PVP":PVP, "familia":familia}
-            })
-            .done(function(data){
-                if(data.mensaje)
-                {
-                    $('#respuestas').html("<p class='mensaje'>El producto con cod: <strong>"+cod+"</strong> se ha editado con éxito<p>");
-                    obtener_productos();
-                }
-                else
-                {
-                    $('#errores').html(data.mensaje_error);
-                    $('#principal').html("");
-                }
-            })
-            .fail(function(a,b){
-                $('#errores').html(error_ajax_jquery(a,b));
+        .done(function (data) {
+
+            if (data.repetido) {
+                $('#error_nombre_corto').html("Nombre corto repetido");
+
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
+            }
+            else if (!data.repetido) {
+                var nombre = $('#nombre').val();
+                var descripcion = $('#descripcion').val();
+                var PVP = $('#PVP').val();
+                var familia = $('#familia').val();
+                $.ajax({
+                    url: encodeURI(DIR_SERV + "/producto/actualizar/" + cod),
+                    type: "PUT",
+                    dataType: "json",
+                    data: { "nombre": nombre, "nombre_corto": nombre_corto, "descripcion": descripcion, "PVP": PVP, "familia": familia }
+                })
+                    .done(function (data) {
+                        if (data.mensaje) {
+                            $('#respuestas').html("<p class='mensaje'>El producto con cod: <strong>" + cod + "</strong> se ha editado con éxito<p>");
+                            obtener_productos();
+                        } else if (data.no_login) {
+
+                            cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                            localStorage.clear()
+                        }
+                        else {
+                            $('#errores').html(data.mensaje_error);
+                            $('#principal').html("");
+                        }
+                    })
+                    .fail(function (a, b) {
+                        $('#errores').html(error_ajax_jquery(a, b));
+                        $('#principal').html("");
+                    });
+
+            }
+            else {
+                $('#errores').html(data.mensaje_error);
                 $('#principal').html("");
-            });
+            }
 
-        }
-        else
-        {
-            $('#errores').html(data.mensaje_error);
+        })
+        .fail(function (a, b) {
+            $('#errores').html(error_ajax_jquery(a, b));
             $('#principal').html("");
-        }
-
-    })
-    .fail(function(a,b){
-        $('#errores').html(error_ajax_jquery(a,b));
-        $('#principal').html("");
-    });
+        });
 }
 
-function montar_form_editar(cod)
-{
+function montar_form_editar(cod) {
     $.ajax({
-        url:encodeURI(DIR_SERV+"/producto/"+cod),
-        type:"GET",
-        dataType:"json"
+        url: encodeURI(DIR_SERV + "/producto/" + cod),
+        type: "GET",
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
     })
-    .done(function(data){
-        if(data.mensaje_error)
-        {
-            $('#errores').html(data.mensaje_error);
-            $('#principal').html("");
-            
-        }
-        else if(data.producto)
-        {
-            
-            $.ajax({
-                url:DIR_SERV+"/familias",
-                type:"GET",
-                dataType:"json"
-            })
-            .done(function(data2){
-                if(data2.mensaje_error)
-                {
-                    $('#errores').html(data2.mensaje_error);
-                    $('#principal').html("");
-                }
-                else
-                {
-                    var html_output="<h2>Editando el producto con cod: "+cod+"</h2>";
-                    html_output+="<form onsubmit='event.preventDefault();comprobar_editar(\""+cod+"\");'>";
-                    html_output+="<p><label for='nombre'>Nombre: </label><input type='text' id='nombre' ";
-                    if(data.producto["nombre"])
-                        html_output+="value='"+data.producto["nombre"]+"'";
-                    html_output+="/></p>";
-                    html_output+="<p><label for='nombre_corto'>Nombre Corto: </label><input type='text' id='nombre_corto' required value='"+data.producto["nombre_corto"]+"'/><span id='error_nombre_corto'></span></p>";
-                    html_output+="<p><label for='descripcion'>Descripción: </label><textarea id='descripcion' required>"+data.producto["descripcion"]+"</textarea></p>";
-                    html_output+="<p><label for='PVP'>PVP: </label><input type='number' id='PVP' min='0.01' step='0.01' required value='"+data.producto["PVP"]+"'/></p>";
-                    html_output+="<p><label for='familia'>Seleccione una familia: </label>";
-                    html_output+="<select id='familia'>";
-                    $.each(data2.familias, function(key, tupla){
-                        if(tupla["cod"]==data.producto["familia"])
-                            html_output+="<option selected value='"+tupla["cod"]+"'>"+tupla["nombre"]+"</option>";
-                        else
-                            html_output+="<option value='"+tupla["cod"]+"'>"+tupla["nombre"]+"</option>"
-                    });
-                    html_output+="</select>";
-                    html_output+="</p>";
-                    html_output+="<p><button onclick='volver();event.preventDefault();'>Volver</button> <button>Continuar</button></p>";
-                    html_output+="</form>";
-                    $('#respuestas').html(html_output);
-                }
-                
-            })
-            .fail(function(a,b){
-                $('#errores').html(error_ajax_jquery(a,b));
+        .done(function (data) {
+            if (data.mensaje_error) {
+                $('#errores').html(data.mensaje_error);
                 $('#principal').html("");
-            });
 
-        }
-        else
-        {
-            output="<p>El producto con cod: <strong>"+cod+"</strong> ya no se encuentra en la BD</p>";
-            $('#respuestas').html(output);
-            obtener_productos();
-        }
-        
+            } else if (data.no_login) {
 
-    })
-    .fail(function(a,b){
-        $('#errores').html(error_ajax_jquery(a,b));
-        $('#principal').html("");
-    });
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
+            }
+            else if (data.producto) {
+
+                $.ajax({
+                    url: DIR_SERV + "/familias",
+                    type: "GET",
+                    dataType: "json"
+                })
+                    .done(function (data2) {
+                        if (data2.mensaje_error) {
+                            $('#errores').html(data2.mensaje_error);
+                            $('#principal').html("");
+                        } else if (data.no_login) {
+
+                            cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                            localStorage.clear()
+                        }
+                        else {
+                            var html_output = "<h2>Editando el producto con cod: " + cod + "</h2>";
+                            html_output += "<form onsubmit='event.preventDefault();seguridad(comprobar_editar,\"" + cod + "\");'>";
+                            html_output += "<p><label for='nombre'>Nombre: </label><input type='text' id='nombre' ";
+                            if (data.producto["nombre"])
+                                html_output += "value='" + data.producto["nombre"] + "'";
+                            html_output += "/></p>";
+                            html_output += "<p><label for='nombre_corto'>Nombre Corto: </label><input type='text' id='nombre_corto' required value='" + data.producto["nombre_corto"] + "'/><span id='error_nombre_corto'></span></p>";
+                            html_output += "<p><label for='descripcion'>Descripción: </label><textarea id='descripcion' required>" + data.producto["descripcion"] + "</textarea></p>";
+                            html_output += "<p><label for='PVP'>PVP: </label><input type='number' id='PVP' min='0.01' step='0.01' required value='" + data.producto["PVP"] + "'/></p>";
+                            html_output += "<p><label for='familia'>Seleccione una familia: </label>";
+                            html_output += "<select id='familia'>";
+                            $.each(data2.familias, function (key, tupla) {
+                                if (tupla["cod"] == data.producto["familia"])
+                                    html_output += "<option selected value='" + tupla["cod"] + "'>" + tupla["nombre"] + "</option>";
+                                else
+                                    html_output += "<option value='" + tupla["cod"] + "'>" + tupla["nombre"] + "</option>"
+                            });
+                            html_output += "</select>";
+                            html_output += "</p>";
+                            html_output += "<p><button onclick='seguridad(volver);event.preventDefault();'>Volver</button> <button>Continuar</button></p>";
+                            html_output += "</form>";
+                            $('#respuestas').html(html_output);
+                        }
+
+                    })
+                    .fail(function (a, b) {
+                        $('#errores').html(error_ajax_jquery(a, b));
+                        $('#principal').html("");
+                    });
+
+            }
+            else {
+                output = "<p>El producto con cod: <strong>" + cod + "</strong> ya no se encuentra en la BD</p>";
+                $('#respuestas').html(output);
+                obtener_productos();
+            }
+
+
+        })
+        .fail(function (a, b) {
+            $('#errores').html(error_ajax_jquery(a, b));
+            $('#principal').html("");
+        });
 }
 
 function borrar_producto(cod) {
     var output = "<p class='centrado'>Se dispone usted a borrar el producto: " + cod + "</p>"
     output += "<p class='centrado'>¿Está seguro?</p>"
-    output += "<p class='centrado'><button onclick= 'volver()'>Volver</button><button onclick= 'confirmar_borrar(\"" + cod + "\")'>Confirmar</button></p>"
+    output += "<p class='centrado'><button onclick= 'seguridad(volver)'>Volver</button><button onclick= 'seguridad(confirmar_borrar, \"" + cod + "\")'>Confirmar</button></p>"
 
     $("div#respuestas").html(output);
 }
@@ -492,7 +561,8 @@ function confirmar_borrar(cod) {
     $.ajax({
         url: encodeURI(DIR_SERV + "/producto/borrar/" + cod),
         type: "DELETE",
-        dataType: "json"
+        dataType: "json",
+        data: { "api_session": localStorage.api_session }
     })
         .done(function (data) {
 
@@ -503,6 +573,10 @@ function confirmar_borrar(cod) {
                 $("div#errores").html(data.mensaje_error)
                 $("div#principal").html("")
 
+            } else if (data.no_login) {
+
+                cargar_vista_login("El tiempo de sesión de la API ha expirado");
+                localStorage.clear()
             } else {
 
 
