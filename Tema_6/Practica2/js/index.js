@@ -416,7 +416,6 @@ function comprobar_editar(cod) {
         data: { "api_session": localStorage.api_session }
     })
         .done(function (data) {
-
             if (data.repetido) {
                 $('#error_nombre_corto').html("Nombre corto repetido");
 
